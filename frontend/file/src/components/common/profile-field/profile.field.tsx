@@ -1,12 +1,19 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import css from "../../../assets/styles/layout/student.profile.module.scss";
-import { ProfileFieldProps } from "../../../interface/common/profile-field/profile.field";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import css from "../../../assets/styles/layout/patient.profile.module.scss";
+
+// Interfaz de props
+interface ProfileFieldProps {
+  icon?: IconDefinition; // <-- ¡AHORA ES OPCIONAL!
+  label: string;
+  value: string | number | null | undefined;
+}
 
 const ProfileField: React.FC<ProfileFieldProps> = ({ icon, label, value }) => (
   <li>
-    <FontAwesomeIcon icon={icon} className={css.profileIcon} />{" "}
-    <strong>{label}:</strong> {value || "NO REGISTRADO"}
+    {icon && <FontAwesomeIcon icon={icon} className={css.profileIcon} />}
+    <strong>{label}:</strong> {value !== null && value !== undefined && value !== '' ? String(value) : "NO REGISTRADO"}
   </li>
 );
 

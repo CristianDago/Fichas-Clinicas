@@ -1,10 +1,11 @@
 import { getGoogleDriveService } from "../config/google.drive";
-import { drive_v3 } from "googleapis";
+import { drive_v3 } from "googleapis"; // Importa el tipo drive_v3.Drive
 import fs from "fs";
-import { Readable } from "stream";
+import { Readable } from "stream"; // Aunque no se usa directamente en este fragmento, se mantiene si es parte de tu setup.
 
 let _driveInstance: drive_v3.Drive | null = null;
 
+// Helper para obtener la instancia de Google Drive (se mantiene)
 const getDriveInstance = async (): Promise<drive_v3.Drive> => {
   if (!_driveInstance) {
     _driveInstance = await getGoogleDriveService();
@@ -12,6 +13,7 @@ const getDriveInstance = async (): Promise<drive_v3.Drive> => {
   return _driveInstance;
 };
 
+// Función para subir archivos a Drive (se mantiene)
 export const uploadFileToDrive = async (
   filePath: string,
   fileName: string
@@ -29,7 +31,7 @@ export const uploadFileToDrive = async (
     }
 
     const media = {
-      mimeType: "image/jpeg",
+      mimeType: "image/jpeg", // Asegúrate de que este MIME type sea genérico o adaptado al tipo de archivo
       body: fs.createReadStream(filePath),
     };
 
@@ -45,6 +47,7 @@ export const uploadFileToDrive = async (
   }
 };
 
+// Función para hacer público un archivo (se mantiene)
 export const setFilePublic = async (fileId: string): Promise<void> => {
   try {
     const drive = await getDriveInstance();
@@ -61,10 +64,14 @@ export const setFilePublic = async (fileId: string): Promise<void> => {
   }
 };
 
+// --- ¡AJUSTE CLAVE! Eliminada la función 'deleteFile' duplicada y errónea.
+// La única función de borrado de archivos es la que está dentro de googleDriveService.
+// Este objeto es el que debe exportar las funciones que se usarán en otros servicios.
 export const googleDriveService = {
+  // Función para eliminar archivos de Drive (¡esta es la que usaremos en el servicio!)
   async deleteFile(fileId: string): Promise<void> {
     try {
-      const drive = await getDriveInstance();
+      const drive = await getDriveInstance(); // <-- Obtiene la instancia de drive aquí
       await drive.files.delete({
         fileId: fileId,
       });

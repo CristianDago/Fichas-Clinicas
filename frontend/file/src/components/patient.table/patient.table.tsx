@@ -1,40 +1,45 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import css from "../../assets/styles/components/student.table.module.scss";
+import css from "../../assets/styles/components/patient.table.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleRight, faCircleLeft } from "@fortawesome/free-solid-svg-icons";
-import { StudentTableProps } from "../../interface/common/statistics/statistics";
-import Constants from "../../utils/constants";
+import { PatientData } from "../../interface/patient/patient.interface";
 
-export const StudentTable: React.FC<StudentTableProps> = ({
-  students,
+interface PatientTableProps {
+  patients: PatientData[];
+  title: string;
+  viewProfilePath: string;
+}
+
+export const PatientTable: React.FC<PatientTableProps> = ({
+  patients,
   title,
   viewProfilePath,
 }) => {
   const navigate = useNavigate();
   const [searchRut, setSearchRut] = useState("");
-  const [filterFeedback, setFilterFeedback] = useState("");
+  const [searchPhone, setSearchPhone] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1);
-  const studentsPerPage = 20;
+  const patientsPerPage = 20;
 
-  const memoizedFilteredStudents = useMemo(() => {
-    return students.filter((student) => {
+  const memoizedFilteredPatients = useMemo(() => {
+    return patients.filter((patient) => {
       return (
-        (searchRut === "" || student.rut?.includes(searchRut)) &&
-        (filterFeedback === "" || student.positiveFeedback === filterFeedback)
+        (searchRut === "" || patient.rut?.includes(searchRut)) &&
+        (searchPhone === "" || patient.phone?.includes(searchPhone))
       );
     });
-  }, [students, searchRut, filterFeedback]);
+  }, [patients, searchRut, searchPhone]);
 
   const totalPages = Math.max(
     1,
-    Math.ceil(memoizedFilteredStudents.length / studentsPerPage)
+    Math.ceil(memoizedFilteredPatients.length / patientsPerPage)
   );
-  const indexOfLastStudent = currentPage * studentsPerPage;
-  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = memoizedFilteredStudents.slice(
-    indexOfFirstStudent,
-    indexOfLastStudent
+  const indexOfLastPatient = currentPage * patientsPerPage;
+  const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
+  const currentPatients = memoizedFilteredPatients.slice(
+    indexOfFirstPatient,
+    indexOfLastPatient
   );
 
   const handleViewProfile = (id: string) => {
@@ -45,7 +50,7 @@ export const StudentTable: React.FC<StudentTableProps> = ({
     <>
       <h1>{title}</h1>
       <p className={css.counter}>
-        Total de estudiantes: {memoizedFilteredStudents.length}
+        Total de pacientes: {memoizedFilteredPatients.length}
       </p>
 
       <div className={css.filters}>
@@ -58,62 +63,50 @@ export const StudentTable: React.FC<StudentTableProps> = ({
             setCurrentPage(1);
           }}
         />
-        <select
-          value={filterFeedback}
+        <input
+          type="text"
+          placeholder="Buscar por Teléfono"
+          value={searchPhone}
           onChange={(e) => {
-            setFilterFeedback(e.target.value);
+            setSearchPhone(e.target.value);
             setCurrentPage(1);
           }}
-        >
-          <option value="">Todos los estados</option>
-          {Constants.allFeedbacks
-            .filter((feedbackOption) => feedbackOption !== "")
-            .map((feedbackOption) => (
-              <option key={feedbackOption} value={feedbackOption}>
-                {feedbackOption}
-              </option>
-            ))}
-        </select>
+        />
       </div>
 
-      <div className={css.studentTableContainer}>
+      <div className={css.patientTableContainer}>
         <table>
           <thead>
             <tr>
               <th>Nombre</th>
               <th>Apellido</th>
               <th>RUT</th>
-              <th>Estado</th>
+              <th>Teléfono</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {currentStudents.length > 0 ? (
-              currentStudents.map((student) => (
-                <tr key={student.id || JSON.stringify(student)}>
-                  <td>{student.name}</td>
-                  <td>{student.lastname}</td>
-                  <td>{student.rut}</td>
-                  <td>
-                    {student.positiveFeedback}
-                  </td>
+            {currentPatients.length > 0 ? (
+              currentPatients.map((patient) => (
+                <tr key={patient.id || JSON.stringify(patient)}>
+                  <td>{patient.name}</td>
+                  <td>{patient.lastname}</td>
+                  <td>{patient.rut}</td>
+                  <td>{patient.phone}</td>
                   <td>
                     <button
-                      onClick={() => handleViewProfile(student.id!)}
+                      onClick={() => handleViewProfile(patient.id!)}
                       className={css.viewProfileButton}
                     >
-                      Ver Perfil
+                      Ver Ficha Clínica
                     </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{ textAlign: "center", padding: "10px" }}
-                >
-                  No hay estudiantes que coincidan con los filtros aplicados.
+                <td colSpan={5} style={{ textAlign: "center", padding: "10px" }}>
+                  No hay pacientes que coincidan con los filtros aplicados.
                 </td>
               </tr>
             )}

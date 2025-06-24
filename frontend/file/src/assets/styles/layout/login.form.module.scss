@@ -1,14 +1,16 @@
 @use "../config/variables.module.scss" as vars;
 
 .loginContainer {
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100%;
+  display: flex; /* Asegura que sea un contenedor flex */
+  justify-content: center; /* Centra horizontalmente el formulario */
+  align-items: center; /* Centra verticalmente el formulario */
+  height: 100vh; /* Ocupa toda la altura de la ventana */
+  width: 100%; /* Ocupa todo el ancho disponible */
 }
 
 .loginForm {
-  max-width: 350px;
+  max-width: 350px; /* Puedes ajustar este valor. Prueba con 450px, 500px, 550px */
+  width: 100%; /* ¡AJUSTE CLAVE! Permite que el formulario se estire hasta su max-width */
   padding: vars.$spacing-unit * 3.125;
   background: vars.$white;
   border-radius: 10px;

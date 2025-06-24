@@ -2,7 +2,7 @@ import { useState } from "react";
 import FormInput from "../../components/common/forms/form.input";
 import css from "../../assets/styles/layout/login.form.module.scss";
 import LoginFormProps from "../../interface/login/login.form.props";
-import logo from "../../assets/images/logo-escuelas-blanco.webp";
+import logo from "../../assets/images/logo-blanco.webp";
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
@@ -30,9 +30,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         type="email"
         value={email}
         onChange={(
-          e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> // <-- ¡CORREGIDO AQUÍ! Añadido HTMLTextAreaElement
+          e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >
         ) => setEmail(e.target.value)}
-        // autocomplete="username" // Comentado por si da problemas con TypeScript en FormInputProps sin ser definida
       />
 
       <FormInput
@@ -42,9 +43,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         type="password"
         value={password}
         onChange={(
-          e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> // <-- ¡CORREGIDO AQUÍ! Añadido HTMLTextAreaElement
+          e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >
         ) => setPassword(e.target.value)}
-        // autocomplete="current-password" // Comentado por si da problemas con TypeScript en FormInputProps sin ser definida
       />
 
       <button className={css.loginButton} disabled={isLoading}>

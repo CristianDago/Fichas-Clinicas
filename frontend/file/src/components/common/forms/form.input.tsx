@@ -50,22 +50,25 @@ const FormInput: React.FC<FormInputProps> = ({
             rows={3}
           />
         );
-      case 'select':
-        return (
-          <select
-            id={id || name} // Usa 'id' si está presente
-            name={name}
-            value={value as string | undefined}
-            onChange={onChange}
-            required={required}
-          >
-            {options?.map((option: SelectOption) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        );
+        case 'select':
+  const normalizedValue = options?.some((opt) => opt.value === value)
+    ? value
+    : "";
+  return (
+    <select
+      id={id || name}
+      name={name}
+      value={normalizedValue as string}
+      onChange={onChange}
+      required={required}
+    >
+      {options?.map((option: SelectOption) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
       case 'checkbox':
       case 'radio':
         return (

@@ -1,33 +1,36 @@
 // Interfaz para detalles de condiciones médicas (Sí/No con especificaciones)
 export interface MedicalConditionDetails {
-  present: 'Sí' | 'No' | ''; // Ahora es un string del select
+  present: "Sí" | "No" | ""; // Ahora es un string del select
   type?: string;
   medications?: string;
   dose?: string;
 }
 
-// Interfaz genérica para select con opción "Otros" 
+// Interfaz genérica para select con opción "Otros"
 export interface SelectOptionWithSpecify {
   selected: string; // Puede ser CUALQUIER string de la opción seleccionada (ej. "Latex", "Otros")
   specify?: string; // Campo para especificar si 'Otros' fue seleccionado
 }
 
-// Interfaz principal de datos 
+// Interfaz principal de datos
 export interface PatientData {
   // --- Datos Personales ---
+  id?: string; // <-- ¡AÑADIDO! El ID del paciente generado por la DB
+  createdAt?: Date; // <-- ¡AÑADIDO! La fecha de creación, también del backend
   name: string;
   lastname: string;
   rut: string;
   age?: number;
-  weight?: number; 
-  height?: number; 
+  gender: "Hombre" | "Mujer" | "Otro" | "";
+  weight?: number;
+  height?: number;
   imc?: number;
   email: string;
   phone: string;
-  children?: number; 
+  children?: number;
   occupation?: string;
-  reasonForConsultation?: string; 
-  howDidYouHear: SelectOptionWithSpecify; 
+  reasonForConsultation?: string;
+  howDidYouHear: SelectOptionWithSpecify;
   // --- Antecedentes Médicos ---
   cardiovascular: MedicalConditionDetails;
   ophthalmological: MedicalConditionDetails;
@@ -41,22 +44,22 @@ export interface PatientData {
   sleepApnea: MedicalConditionDetails;
   eatingDisorder: MedicalConditionDetails;
   currentMedicationUse: {
-    present: 'Sí' | 'No' | '';
+    present: "Sí" | "No" | "";
     specify?: string;
   };
   otherDiseasesNotMentioned: MedicalConditionDetails;
   // --- Hábitos ---
-  physicalActivity: 'Sí' | 'No' | '';
+  physicalActivity: "Sí" | "No" | "";
   smoking: {
-    isSmoker: 'Sí' | 'No' | '';
+    isSmoker: "Sí" | "No" | "";
     cigarettesPerDay?: number;
   };
   drugs: {
-    usesDrugs: 'Sí' | 'No' | '';
+    usesDrugs: "Sí" | "No" | "";
     type?: string;
   };
   alcohol: {
-    consumesAlcohol: 'Sí' | 'No' | '';
+    consumesAlcohol: "Sí" | "No" | "";
     quantity?: string;
   };
   // --- Antecedentes Quirúrgicos ---

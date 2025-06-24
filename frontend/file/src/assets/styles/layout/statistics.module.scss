@@ -1,9 +1,0 @@
-@use "../config/variables.module.scss" as vars; 
-
-.modulos {
-    padding: vars.$spacing-unit * 3.75;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-top: vars.$spacing-unit * 3.75;
-    border-radius: 15px;
-
-}

@@ -1,19 +1,19 @@
-import { Grid } from "../components/common/grid/grid";
-import { useStudentsList } from "../hooks/use.students.list";
-import { StudentTable } from "../components/student-table/student.table";
+import { Grid } from "../components/common/grid/grid"; // Asumo que esta ruta es correcta
+import { usePatientsList } from "../hooks/use.patients.list";
+import { PatientTable } from "../components/patient.table/patient.table";
 
 export default function Dashboard() {
-  const { students, error, loading } = useStudentsList();
+  const { patients, error, loading } = usePatientsList(); // <-- Usa el hook de pacientes
 
-  if (loading) return <p>Cargando estudiantes...</p>;
+  if (loading) return <p>Cargando fichas clínicas...</p>; // Mensaje actualizado
   if (error) return <p>Error: {error}</p>;
 
   return (
     <Grid>
-      <StudentTable
-        students={students}
-        title={`Estudiantes (${students.length})`}
-        viewProfilePath="/dashboard/student"
+      <PatientTable // <-- Usa la PatientTable
+        patients={patients} // <-- Pasa los datos de pacientes
+        title={`Fichas Clínicas (${patients.length})`} // <-- Título actualizado
+        viewProfilePath="/dashboard/patient" // <-- Ruta para ver perfil de paciente
       />
     </Grid>
   );

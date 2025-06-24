@@ -1,4 +1,3 @@
-// src/pages/AddPatient/AddPatient.tsx
 import { useEffect } from "react";
 import { AddPatientForm } from "../components/common/forms/add-patient/add.patient.form";
 import { useAuth } from "../components/auth/auth.context";

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/auth/auth.context";
-import { fetchStudentsList } from "../utils/fetch.students";
-import type { Student } from "../interface/student/student";
+import { fetchPatientsList } from "../utils/fetch.patient";
+import type { PatientData } from "../interface/patient/patient.interface"; // <-- Importa la interfaz PatientData
 
-export const useStudentsList = () => {
+export const usePatientsList = () => {
+  // <-- Renombrado a usePatientsList
   const { token } = useAuth();
-  const [students, setStudents] = useState<Student[]>([]);
+  const [patients, setPatients] = useState<PatientData[]>([]); // <-- Cambiado a patients y tipo PatientData[]
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +19,7 @@ export const useStudentsList = () => {
       }
 
       try {
-        const data: Student[] = await fetchStudentsList(token);
+        const data: PatientData[] = await fetchPatientsList(token); // <-- Llama a fetchPatientsList
 
         const sortedData = [...data].sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -26,9 +27,9 @@ export const useStudentsList = () => {
           return dateB - dateA;
         });
 
-        setStudents(sortedData);
+        setPatients(sortedData);
       } catch (err: any) {
-        setError(err.message || "Error desconocido al obtener estudiantes");
+        setError(err.message || "Error desconocido al obtener pacientes"); // Texto actualizado
       } finally {
         setLoading(false);
       }
@@ -37,5 +38,5 @@ export const useStudentsList = () => {
     fetchData();
   }, [token]);
 
-  return { students, error, loading };
+  return { patients, error, loading }; // <-- Devuelve patients
 };
