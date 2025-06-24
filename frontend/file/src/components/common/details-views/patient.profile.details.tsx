@@ -190,7 +190,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({
         </div>
 
         <div>
-          <h1>{`${patientSafe.name || "NO REGISTRADO"} ${
+          <h1 className={`name`}>{`${patientSafe.name || "NO REGISTRADO"} ${
             patientSafe.lastname || "NO REGISTRADO"
           }`}</h1>
 
@@ -280,7 +280,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({
           <ul>
             <MedicalConditionDisplay
               icon={faHeartPulse}
-              label="Cardio Vascular"
+              label="Cardiovascular"
               data={patientSafe.cardiovascular}
             />
             <MedicalConditionDisplay
@@ -348,7 +348,7 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({
       </Grid>
 
       {/* --- Hábitos --- */}
-      <Grid className={`grid-columns-2 ${css.personalData}`}>
+      <Grid className={`grid-columns-2 ${css.datosHabitos}`}>
         <div>
           <h2>Hábitos</h2>
           <ul>
@@ -405,14 +405,27 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({
         <div>
           <h2>Procedimientos</h2>
           <ul>
-            <ProfileField
-              label="Sugerido por Cirujano"
-              value={getSimpleValue(patientSafe.suggestedTreatmentBySurgeon)}
-            />
-            <ProfileField
-              label="Decide Realizarse"
-              value={getSimpleValue(patientSafe.patientDecidedTreatment)}
-            />
+            <li className={css.twoLineItem}>
+              <div className={css.firstLine}>
+                <FontAwesomeIcon
+                  icon={faNotesMedical}
+                  className={css.profileIcon}
+                />
+                <strong>Sugerido por Cirujano:</strong>
+              </div>
+              <div className={css.detailsLine}>
+                {getSimpleValue(patientSafe.suggestedTreatmentBySurgeon)}
+              </div>
+            </li>
+            <li className={css.twoLineItem}>
+              <div className={css.firstLine}>
+                <FontAwesomeIcon icon={faUser} className={css.profileIcon} />
+                <strong>Decide Realizarse:</strong>
+              </div>
+              <div className={css.detailsLine}>
+                {getSimpleValue(patientSafe.patientDecidedTreatment)}
+              </div>
+            </li>
           </ul>
         </div>
       </Grid>

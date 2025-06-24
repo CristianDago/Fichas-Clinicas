@@ -1,20 +1,34 @@
+// src/components/common/profile-field/profile.field.tsx
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
 
-// Interfaz de props
 interface ProfileFieldProps {
-  icon?: IconDefinition; // <-- ¡AHORA ES OPCIONAL!
+  icon?: any;
   label: string;
   value: string | number | null | undefined;
 }
 
-const ProfileField: React.FC<ProfileFieldProps> = ({ icon, label, value }) => (
-  <li>
-    {icon && <FontAwesomeIcon icon={icon} className={css.profileIcon} />}
-    <strong>{label}:</strong> {value !== null && value !== undefined && value !== '' ? String(value) : "NO REGISTRADO"}
-  </li>
-);
+const isValueEmpty = (val: any): boolean => {
+  return (
+    val === null ||
+    val === undefined ||
+    (typeof val === "string" && val.trim() === "") ||
+    (typeof val === "number" && isNaN(val))
+  );
+};
+
+const ProfileField: React.FC<ProfileFieldProps> = ({ icon, label, value }) => {
+  const mainValue = isValueEmpty(value) ? "NO REGISTRADO" : String(value);
+
+  return (
+    <li className={css.twoLineItem}>
+      <div className={css.firstLine}>
+        {icon && <FontAwesomeIcon icon={icon} className={css.profileIcon} />}{" "}
+        <strong>{label}:</strong> {mainValue}
+      </div>
+    </li>
+  );
+};
 
 export default ProfileField;

@@ -4,6 +4,7 @@ import { useAuth } from "../components/auth/auth.context";
 import { useAddPatient } from "../hooks/use.add.patients";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import css from "../assets/styles/components/patient.table.module.scss";
 
 export default function AddPatient() {
   const { token } = useAuth();
@@ -38,7 +39,7 @@ export default function AddPatient() {
 
   return (
     <div>
-      <h1>Agregar Paciente</h1>
+      <h1 className={css.name}>Agregar Paciente</h1>
       <AddPatientForm
         key={formKey}
         patientData={patientData}

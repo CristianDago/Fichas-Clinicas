@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { patientService } from "../services/patient.service"; // Importa el servicio renombrado
-import { MulterRequest } from "../interfaces/express.interface"; // Asegúrate de que esta ruta sea correcta
+import { patientService } from "../services/patient.service";
+import { MulterRequest } from "../interfaces/express.interface";
 import {
   processPatientFiles, // Importa la utilidad renombrada
   normalizePatientData, // Importa la utilidad renombrada

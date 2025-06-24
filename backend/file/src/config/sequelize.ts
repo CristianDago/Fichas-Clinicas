@@ -6,7 +6,7 @@ const createSequelizeInstance = (
   connectionString: string,
   models: any[],
   name: string,
-  dialect: 'mysql' | 'postgres' // <-- ¡NUEVO PARÁMETRO: Dialecto!
+  dialect: "mysql" | "postgres" // <-- ¡NUEVO PARÁMETRO: Dialecto!
 ): Sequelize => {
   if (!connectionString) {
     throw new Error(`Environment variable for ${name} database not found.`);

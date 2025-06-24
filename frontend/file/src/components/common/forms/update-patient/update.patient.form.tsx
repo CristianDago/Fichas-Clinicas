@@ -103,7 +103,7 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
 
   return (
     <form onSubmit={onSubmit} className={formCss.patientForm}>
-      <h1>Editar Ficha Clínica</h1>
+      <h1 className={formCss.name}>Editar Ficha Clínica</h1>
       {/* --- Datos personales --- */}
       <FormSection title="Datos personales" gridClassName="grid-columns-4">
         <FormInput

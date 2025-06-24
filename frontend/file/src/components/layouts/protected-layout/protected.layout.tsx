@@ -6,10 +6,8 @@ import layoutCss from "../../../assets/styles/layout/protected.layout.module.scs
 const ProtectedLayout: React.FC = () => {
   return (
     <div className={layoutCss.protectedLayout}>
-      <Navbar /> {/* Renderiza la Navbar en la parte superior */}
+      <Navbar />
       <main className={layoutCss.mainContent}>
-        {" "}
-        {/* El contenido de la página se renderiza aquí */}
         <Outlet />
       </main>
     </div>

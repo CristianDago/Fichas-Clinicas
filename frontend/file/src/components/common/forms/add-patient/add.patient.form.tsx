@@ -143,7 +143,7 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
         {renderMedicalConditionSection(
           handleChange,
           "cardiovascular",
-          "Cardio Vascular",
+          "Cardiovascular",
           patientData.cardiovascular
         )}
         {renderMedicalConditionSection(

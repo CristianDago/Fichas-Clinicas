@@ -4,6 +4,7 @@
 @use "../styles/layout/grid.module.scss" as grid;
 @use "../styles/components/_loading-spinner.scss";
 
+
 body {
   background-color: vars.$grey;
   color: vars.$text-color;

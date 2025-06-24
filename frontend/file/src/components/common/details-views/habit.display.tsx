@@ -1,5 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import css from "../../../assets/styles/layout/patient.profile.module.scss";
 import {
   HabitDisplayProps,
   SmokingData,
@@ -15,68 +16,54 @@ const HabitDisplay: React.FC<HabitDisplayProps> = ({
 }) => {
   const showYesNo = (val: string | undefined) => {
     if (!val || val.trim() === "") return "NO REGISTRADO";
-    return val.toUpperCase(); // Uniformamos para comparación
+    return val.toUpperCase(); 
   };
 
   const isYes = (val?: string) => {
     return val?.trim().toUpperCase() === "SÍ";
   };
 
-  const renderContent = () => {
-    if (typeof data === "string") return showYesNo(data);
+  let mainAnswer = "";
+  let detail: string | null = null;
 
-    switch (habitType) {
-      case "smoking":
-        const smoking = data as SmokingData;
-        return (
-          <>
-            <div className="detailsLine">{showYesNo(smoking.isSmoker)}</div>
-            {isYes(smoking.isSmoker) && (
-              <div className="detailsLine">
-                Cigarrillos por día:{" "}
-                {smoking.cigarettesPerDay ?? "No registrado"}
-              </div>
-            )}
-          </>
-        );
-      case "drugs":
-        const drugs = data as DrugsData;
-        return (
-          <>
-            <div className="detailsLine">{showYesNo(drugs.usesDrugs)}</div>
-            {isYes(drugs.usesDrugs) && (
-              <div className="detailsLine">
-                Tipo: {drugs.type ?? "No registrado"}
-              </div>
-            )}
-          </>
-        );
-      case "alcohol":
-        const alcohol = data as AlcoholData;
-        return (
-          <>
-            <div className="detailsLine">
-              {showYesNo(alcohol.consumesAlcohol)}
-            </div>
-            {isYes(alcohol.consumesAlcohol) && (
-              <div className="detailsLine">
-                Cantidad: {alcohol.quantity ?? "No registrado"}
-              </div>
-            )}
-          </>
-        );
-      default:
-        return "NO REGISTRADO";
-    }
-  };
+  switch (habitType) {
+    case "smoking":
+      const smoking = data as SmokingData;
+      mainAnswer = smoking.isSmoker ?? "";
+      if (isYes(smoking.isSmoker)) {
+        detail = `Cigarrillos por día: ${
+          smoking.cigarettesPerDay ?? "No registrado"
+        }`;
+      }
+      break;
+
+    case "drugs":
+      const drugs = data as DrugsData;
+      mainAnswer = drugs.usesDrugs ?? "";
+      if (isYes(drugs.usesDrugs)) {
+        detail = `Tipos: ${drugs.type ?? "No registrado"}`;
+      }
+      break;
+
+    case "alcohol":
+      const alcohol = data as AlcoholData;
+      mainAnswer = alcohol.consumesAlcohol ?? "";
+      if (isYes(alcohol.consumesAlcohol)) {
+        detail = `Frecuencia: ${alcohol.quantity ?? "No registrado"}`;
+      }
+      break;
+
+    default:
+      mainAnswer = "NO REGISTRADO";
+  }
 
   return (
-    <li className={`detailsContainer ${habitType}`}>
-      {icon && <FontAwesomeIcon icon={icon} className="detailsIcon" />}
-      <div className="detailsContent">
-        <strong>{label}:</strong>
-        {renderContent()}
+    <li className={css.twoLineItem}>
+      <div className={css.firstLine}>
+        {icon && <FontAwesomeIcon icon={icon} className={css.profileIcon} />}{" "}
+        <strong>{label}:</strong> {showYesNo(mainAnswer)}
       </div>
+      {detail && <div className={css.detailsLine}>{detail}</div>}
     </li>
   );
 };
