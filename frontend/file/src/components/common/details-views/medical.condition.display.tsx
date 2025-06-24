@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
 import { MedicalConditionDisplayProps } from "../../../interface/common/forms/form.renderers";
 
-const isValueEmpty = (val: any): boolean => {
+const isValueTrulyEmpty = (val: any): boolean => {
   return (
     val === null ||
     val === undefined ||
@@ -17,20 +17,34 @@ const MedicalConditionDisplay: React.FC<MedicalConditionDisplayProps> = ({
   label,
   data,
 }) => {
-  const present = data?.present?.toUpperCase?.() || "";
+  // CAMBIO CLAVE AQUÍ: No uses `|| ""` al extraer el valor. Que sea null/undefined si es el caso.
+  const present = data?.present; // Ahora `present` puede ser "" | "Sí" | "No" | null | undefined
+
   const type = data?.type;
   const medications = data?.medications;
   const dose = data?.dose;
 
-  const hasPresent = present === "SÍ" || present === "NO";
-  const displayPresent = hasPresent ? present : "NO REGISTRADO";
+  let displayPresent = "NO REGISTRADO";
+
+  // CAMBIO CLAVE AQUÍ: Asegúrate de que `present` no sea null/undefined antes de llamar a `toUpperCase()`
+  // Y luego usa `isValueTrulyEmpty` para la lógica de "SÍ" / "NO".
+  const presentUpper = typeof present === 'string' ? present.toUpperCase() : undefined; // Convierte a uppercase solo si es string, sino undefined
+
+  const hasValidPresentValue = presentUpper === "SÍ" || presentUpper === "NO";
 
   const details = [];
-  if (!isValueEmpty(type)) details.push(`Tipo: ${type}`);
-  if (!isValueEmpty(medications)) details.push(`Medicamentos: ${medications}`);
-  if (!isValueEmpty(dose)) details.push(`Dosis: ${dose}`);
+  if (!isValueTrulyEmpty(type)) details.push(`Tipo: ${type}`);
+  if (!isValueTrulyEmpty(medications)) details.push(`Medicamentos: ${medications}`);
+  if (!isValueTrulyEmpty(dose)) details.push(`Dosis: ${dose}`);
 
   const hasDetails = details.length > 0;
+
+  if (hasValidPresentValue) {
+    displayPresent = presentUpper as string; // Mostrar "SÍ" o "NO"
+  } else if (hasDetails) {
+    displayPresent = "SÍ (con detalles)";
+  }
+  // Si no hay valor `present` válido y no hay detalles, se queda en "NO REGISTRADO"
 
   return (
     <li className={css.twoLineItem}>

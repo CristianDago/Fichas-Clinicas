@@ -6,21 +6,23 @@ import {
 } from "../interface/patient/patient.interface";
 import { addPatient } from "../utils/fetch.patient";
 
-// ¡IMPORTANTE! Asegúrate de que estas inicializaciones coincidan
-// EXACTAMENTE con la interfaz PatientData y las opciones de constants.ts
+import { isValueTrulyEmpty } from "../utils/helpers"; // Esta ya está correcta
+import { updateNested } from "../utils/form.utils"; // <-- Nueva importación
+
+// Modificación: Las propiedades pueden ser `undefined` o `null` si no hay valor lógico.
 const initialMedicalCondition: MedicalConditionDetails = {
-  present: "",
-  type: "",
-  medications: "",
-  dose: "",
+  present: undefined,
+  type: undefined,
+  medications: undefined,
+  dose: undefined,
 };
 const initialSelectOptionWithSpecify: SelectOptionWithSpecify = {
-  selected: "",
-  specify: "",
+  selected: undefined,
+  specify: undefined,
 };
 
+// Modificación: Usamos `undefined` o `null` para las propiedades que no tienen un valor inicial significativo.
 const initialPatientData: PatientData = {
-  // --- Datos Personales ---
   name: "",
   lastname: "",
   rut: "",
@@ -31,12 +33,11 @@ const initialPatientData: PatientData = {
   email: "",
   phone: "",
   children: undefined,
-  occupation: "",
-  reasonForConsultation: "",
+  occupation: undefined,
+  reasonForConsultation: undefined,
   howDidYouHear: { ...initialSelectOptionWithSpecify },
-  gender: "",
+  gender: undefined,
 
-  // --- Antecedentes Médicos ---
   cardiovascular: { ...initialMedicalCondition },
   ophthalmological: { ...initialMedicalCondition },
   psychologicalPsychiatric: { ...initialMedicalCondition },
@@ -48,30 +49,29 @@ const initialPatientData: PatientData = {
   respiratoryDiseases: { ...initialMedicalCondition },
   sleepApnea: { ...initialMedicalCondition },
   eatingDisorder: { ...initialMedicalCondition },
-  currentMedicationUse: { present: "", specify: "" },
+  currentMedicationUse: { present: undefined, specify: undefined },
   otherDiseasesNotMentioned: { ...initialMedicalCondition },
 
-  // --- Hábitos ---
-  physicalActivity: "",
-  smoking: { isSmoker: "", cigarettesPerDay: undefined },
-  drugs: { usesDrugs: "", type: "" },
-  alcohol: { consumesAlcohol: "", quantity: "" },
+  physicalActivity: undefined,
+  smoking: { isSmoker: undefined, cigarettesPerDay: undefined },
+  drugs: { usesDrugs: undefined, type: undefined },
+  alcohol: { consumesAlcohol: undefined, quantity: undefined },
 
-  // --- Antecedentes Quirúrgicos ---
   surgeryDetails: {
     type: { ...initialSelectOptionWithSpecify },
     anesthesiaType: { ...initialSelectOptionWithSpecify },
     adverseEffect: { ...initialSelectOptionWithSpecify },
   },
 
-  // --- Procedimientos ---
-  suggestedTreatmentBySurgeon: "",
-  patientDecidedTreatment: "",
+  suggestedTreatmentBySurgeon: undefined,
+  patientDecidedTreatment: undefined,
 
-  // --- Documentación ---
   document1: null,
   document2: null,
   document3: null,
+  document1DriveId: null,
+  document2DriveId: null,
+  document3DriveId: null,
 };
 
 export const useAddPatient = (token: string | null) => {
@@ -90,98 +90,21 @@ export const useAddPatient = (token: string | null) => {
       const target = e.target;
       const { name, value, type } = target;
 
-      // --- ¡AJUSTE CLAVE 1: Tipado de 'files' para aceptar 'null'! ---
-      let files: FileList | null = null; // Ahora puede ser null
-
+      let files: FileList | null = null;
       if (target instanceof HTMLInputElement && target.type === "file") {
         files = target.files;
       }
 
-      // --- ¡AJUSTE CLAVE 2: Mover 'updateNested' ANTES de su primer uso! ---
-      const updateNested = (obj: any, path: string[], val: any) => {
-        const newObj = { ...obj };
-        let current = newObj;
-        for (let i = 0; i < path.length - 1; i++) {
-          if (!current[path[i]]) {
-            current[path[i]] = {};
-          }
-          current[path[i]] = { ...current[path[i]] };
-          current = current[path[i]];
-        }
-        current[path[path.length - 1]] = val;
-        return newObj;
-      };
-      // --- FIN AJUSTES CLAVE ---
+      // `updateNested` ha sido movido a `utils/form.utils.ts`
+      // y se importa al principio del archivo.
 
       setPatientData((prevData) => {
-        const newData = { ...prevData };
+        let updatedData = prevData;
 
-        // Manejo de Archivos
         if (type === "file" && files && files.length > 0) {
-          return updateNested(newData, name.split("."), files[0]);
-        }
-
-        const path = name.split(".");
-
-        // --- Manejo de Selects (Sí/No/Otros y Seleccionar) ---
-        if (type === "select") {
-          const isOtherSelectedValue = value === "Otros";
-
-          if (path.length > 1 && path[path.length - 1] === "selected") {
-            const targetObjectPath = path.slice(0, path.length - 1);
-            let currentNestedObject = targetObjectPath.reduce(
-              (obj: any, key: string) => obj[key],
-              newData
-            );
-
-            currentNestedObject = { ...currentNestedObject, selected: value };
-
-            if (!isOtherSelectedValue) {
-              currentNestedObject.specify = "";
-            }
-            return updateNested(newData, targetObjectPath, currentNestedObject);
-          } else {
-            const [section, field] = path;
-            let updatedSection = { ...(newData as any)[section] };
-
-            updatedSection[field] = value;
-
-            if (value === "No" || value === "") {
-              if (section === "smoking") {
-                updatedSection.cigarettesPerDay = undefined;
-              } else if (section === "drugs") {
-                updatedSection.type = "";
-              } else if (section === "alcohol") {
-                updatedSection.quantity = "";
-              } else if (
-                section === "currentMedicationUse" &&
-                field === "present"
-              ) {
-                updatedSection.specify = "";
-              } else if (
-                section === "otherDiseasesNotMentioned" &&
-                field === "present"
-              ) {
-                updatedSection = {
-                  present: "",
-                  type: "",
-                  medications: "",
-                  dose: "",
-                };
-              } else {
-                updatedSection = {
-                  present: "",
-                  type: "",
-                  medications: "",
-                  dose: "",
-                };
-              }
-            }
-            return updateNested(newData, [section], updatedSection);
-          }
-        }
-        // --- Manejo de Inputs de Texto, Número, Textarea ---
-        else {
+          updatedData = updateNested(prevData, name.split("."), files[0]);
+        } else {
+          const path = name.split(".");
           const parsedValue =
             type === "number"
               ? value === ""
@@ -189,12 +112,77 @@ export const useAddPatient = (token: string | null) => {
                 : Number(value)
               : value;
 
-          if (path.length > 1) {
-            return updateNested(newData, path, parsedValue);
+          if (path.length > 1 && path[path.length - 1] === "selected") {
+            const targetObjectPath = path.slice(0, path.length - 1);
+            let currentNestedObject = updateNested(
+              prevData, targetObjectPath, (prevData as any)[targetObjectPath.join('.')] || {}
+            );
+            // Asegúrate de que currentNestedObject es un objeto antes de spread
+            currentNestedObject = {
+              ...(typeof currentNestedObject === 'object' && currentNestedObject !== null ? currentNestedObject : {}),
+              selected: parsedValue,
+            };
+
+            if (parsedValue !== "Otros") {
+              currentNestedObject.specify = undefined;
+            }
+            updatedData = updateNested(
+              prevData,
+              targetObjectPath,
+              currentNestedObject
+            );
+          } else if (
+            path.length > 1 &&
+            (path[path.length - 1] === "present" ||
+              ["isSmoker", "usesDrugs", "consumesAlcohol"].includes(
+                path[path.length - 1] as string
+              ))
+          ) {
+            const sectionName = path[0];
+            const fieldName = path[1];
+            let updatedSection = updateNested(
+                prevData, [sectionName], (prevData as any)[sectionName] || {}
+            );
+            // Asegúrate de que updatedSection es un objeto antes de asignar propiedades
+            updatedSection = {
+                ...(typeof updatedSection === 'object' && updatedSection !== null ? updatedSection : {}),
+                [fieldName]: parsedValue
+            };
+
+            if (parsedValue === "No" || isValueTrulyEmpty(parsedValue)) {
+              if (sectionName === "smoking") {
+                updatedSection.cigarettesPerDay = undefined;
+              } else if (sectionName === "drugs") {
+                updatedSection.type = undefined;
+              } else if (sectionName === "alcohol") {
+                updatedSection.quantity = undefined;
+              } else if (sectionName === "currentMedicationUse") {
+                updatedSection.specify = undefined;
+              } else if (
+                sectionName === "otherDiseasesNotMentioned" &&
+                fieldName === "present"
+              ) {
+                updatedSection = {
+                  present: undefined,
+                  type: undefined,
+                  medications: undefined,
+                  dose: undefined,
+                };
+              } else {
+                updatedSection = {
+                  present: undefined,
+                  type: undefined,
+                  medications: undefined,
+                  dose: undefined,
+                };
+              }
+            }
+            updatedData = updateNested(prevData, [sectionName], updatedSection);
           } else {
-            return updateNested(newData, [name], parsedValue);
+            updatedData = updateNested(prevData, path, parsedValue);
           }
         }
+        return updatedData;
       });
     },
     []
@@ -233,12 +221,13 @@ export const useAddPatient = (token: string | null) => {
         setPatientData(initialPatientData);
         setFormKey((prevKey) => prevKey + 1);
 
-        console.log("Respuesta del backend:", response);
+        return response;
       } catch (error: any) {
         console.error("Error al enviar datos del paciente:", error);
         setErrorMessage(
           error.message || "Ocurrió un error inesperado al guardar el paciente."
         );
+        throw error;
       }
     },
     [patientData, token]

@@ -1,8 +1,10 @@
 // src/components/common/forms/update.patient.form.tsx
+
 import React from "react";
 import FormInput from "../form.input";
 import { FormSection } from "../form-section/form.section";
-import { PatientData } from "../../../../interface/patient/patient.interface";
+// Asegúrate de que PatientData se importe correctamente desde patient.interface.ts
+import { PatientData } from "../../../../interface/patient/patient.interface"; 
 import formCss from "../../../../assets/styles/layout/add.patient.form.module.scss";
 import { useDocumentHandling } from "../../../../hooks/use.document.handling";
 
@@ -32,7 +34,7 @@ interface UpdatePatientFormProps {
       | { name: keyof PatientData; value: any }
   ) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onDeleteFile: (fieldName: keyof PatientData) => void;
+  onDeleteFile: (fieldName: keyof PatientData) => void; // Esta prop es pasada a useDocumentHandling
 }
 
 const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
@@ -40,11 +42,14 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
   onChange,
   onSubmit,
 }) => {
+  // useDocumentHandling ya recibe `onChange`, y `handleDeleteFile` lo usa.
+  // La prop `onDeleteFile` de UpdatePatientFormProps es un poco redundante si useDocumentHandling ya la provee.
+  // Pero si la necesitas para un `onClick` directo en el padre, está bien.
   const { handleFileChange, handleDeleteFile } =
     useDocumentHandling<PatientData>({ onChange });
 
   const renderDocumentButtons = (
-    label: string,
+    _label: string, // El `_` indica que `label` es un parámetro que no se usa en esta función.
     fieldName: keyof PatientData
   ) => {
     const fileValue = patient[fieldName];
@@ -62,7 +67,7 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           </a>
           <button
             type="button"
-            onClick={() => handleDeleteFile(fieldName)}
+            onClick={() => handleDeleteFile(fieldName)} // Usa handleDeleteFile del hook
             className={formCss.deleteDocument}
           >
             Eliminar
@@ -77,7 +82,7 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           </span>
           <button
             type="button"
-            onClick={() => handleDeleteFile(fieldName)}
+            onClick={() => handleDeleteFile(fieldName)} // Usa handleDeleteFile del hook
             className={formCss.deleteDocument}
           >
             Cambiar
@@ -87,7 +92,7 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
     } else {
       return (
         <FormInput
-          label=""
+          label="" // No necesita label aquí, ya que el label principal del documento está arriba
           name={fieldName as string}
           type="file"
           accept="image/*, application/pdf"
@@ -101,6 +106,15 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
     }
   };
 
+  // ASEGURAMOS QUE surgeryDetails exista antes de acceder a sus subpropiedades.
+  // Confiamos en que la `patient` prop (que viene de `usePatientProfile`) ya viene normalizada
+  // con `surgeryDetails` como un objeto. Esta línea es más una salvaguarda.
+  const safeSurgeryDetails = patient.surgeryDetails || {
+    type: { selected: undefined, specify: undefined }, // Usar `undefined` para consistencia
+    anesthesiaType: { selected: undefined, specify: undefined },
+    adverseEffect: { selected: undefined, specify: undefined },
+  };
+
   return (
     <form onSubmit={onSubmit} className={formCss.patientForm}>
       <h1 className={formCss.name}>Editar Ficha Clínica</h1>
@@ -110,7 +124,7 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           label="Nombres"
           name="name"
           type="text"
-          value={patient.name || ""}
+          value={patient.name || ""} // Mantener || "" para strings en inputs
           onChange={onChange}
           required
         />
@@ -133,28 +147,28 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           label="Edad"
           name="age"
           type="number"
-          value={patient.age || ""}
+          value={patient.age ?? ""} // Usar ?? "" para números
           onChange={onChange}
         />
         <FormInput
           label="Peso (kg)"
           name="weight"
           type="number"
-          value={patient.weight || ""}
+          value={patient.weight ?? ""}
           onChange={onChange}
         />
         <FormInput
           label="Estatura (cm)"
           name="height"
           type="number"
-          value={patient.height || ""}
+          value={patient.height ?? ""}
           onChange={onChange}
         />
         <FormInput
           label="IMC"
           name="imc"
           type="number"
-          value={patient.imc || ""}
+          value={patient.imc ?? ""}
           onChange={onChange}
         />
         <FormInput
@@ -201,7 +215,6 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           onChange={onChange}
           options={GENDER_OPTIONS}
         />
-
         {renderSelectWithSpecify(
           onChange,
           "¿Cómo llegaste a nosotros?",
@@ -243,7 +256,6 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           "Hipertensión",
           patient.hypertension
         )}
-
         {renderSelectWithSpecify(
           onChange,
           "Alergias",
@@ -251,7 +263,6 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
           ALLERGY_OPTIONS,
           "allergies"
         )}
-
         {renderMedicalConditionSection(
           onChange,
           "autoimmuneDiseases",
@@ -331,21 +342,21 @@ const UpdatePatientForm: React.FC<UpdatePatientFormProps> = ({
         {renderSelectWithSpecify(
           onChange,
           "Cirugía",
-          patient.surgeryDetails.type,
+          safeSurgeryDetails.type,
           SURGERY_TYPE_OPTIONS,
           "surgeryDetails.type"
         )}
         {renderSelectWithSpecify(
           onChange,
           "Tipo de anestesia",
-          patient.surgeryDetails.anesthesiaType,
+          safeSurgeryDetails.anesthesiaType,
           ANESTHESIA_TYPE_OPTIONS,
           "surgeryDetails.anesthesiaType"
         )}
         {renderSelectWithSpecify(
           onChange,
           "¿Presentó algún efecto adverso?",
-          patient.surgeryDetails.adverseEffect,
+          safeSurgeryDetails.adverseEffect,
           ADVERSE_EFFECT_OPTIONS,
           "surgeryDetails.adverseEffect"
         )}

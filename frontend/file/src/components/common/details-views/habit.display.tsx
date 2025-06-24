@@ -2,11 +2,23 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
 import {
-  HabitDisplayProps,
   SmokingData,
   DrugsData,
   AlcoholData,
+} from "../../../interface/patient/patient.interface";
+
+import {
+  HabitDisplayProps
 } from "../../../interface/common/forms/form.renderers";
+
+const isValueTrulyEmpty = (val: any): boolean => {
+  return (
+    val === null ||
+    val === undefined ||
+    (typeof val === "string" && val.trim() === "") ||
+    (typeof val === "number" && isNaN(val))
+  );
+};
 
 const HabitDisplay: React.FC<HabitDisplayProps> = ({
   icon,
@@ -14,54 +26,56 @@ const HabitDisplay: React.FC<HabitDisplayProps> = ({
   data,
   habitType,
 }) => {
-  const showYesNo = (val: string | undefined) => {
-    if (!val || val.trim() === "") return "NO REGISTRADO";
-    return val.toUpperCase(); 
-  };
+  // Función auxiliar para mostrar "SÍ"/"NO" o "NO REGISTRADO"
 
-  const isYes = (val?: string) => {
-    return val?.trim().toUpperCase() === "SÍ";
-  };
-
-  let mainAnswer = "";
+  let mainAnswerRaw: string | undefined | null = "";
   let detail: string | null = null;
+  let hasMainAnswerValid = false; // Bandera para verificar si la respuesta principal es "SÍ" o "NO"
 
   switch (habitType) {
     case "smoking":
       const smoking = data as SmokingData;
-      mainAnswer = smoking.isSmoker ?? "";
-      if (isYes(smoking.isSmoker)) {
+      mainAnswerRaw = smoking.isSmoker; // Sin ?? ""
+      hasMainAnswerValid = mainAnswerRaw?.toUpperCase() === "SÍ" || mainAnswerRaw?.toUpperCase() === "NO";
+      if (smoking.isSmoker?.toUpperCase() === "SÍ") {
         detail = `Cigarrillos por día: ${
-          smoking.cigarettesPerDay ?? "No registrado"
+          isValueTrulyEmpty(smoking.cigarettesPerDay) ? "No registrado" : smoking.cigarettesPerDay
         }`;
       }
       break;
 
     case "drugs":
       const drugs = data as DrugsData;
-      mainAnswer = drugs.usesDrugs ?? "";
-      if (isYes(drugs.usesDrugs)) {
-        detail = `Tipos: ${drugs.type ?? "No registrado"}`;
+      mainAnswerRaw = drugs.usesDrugs; // Sin ?? ""
+      hasMainAnswerValid = mainAnswerRaw?.toUpperCase() === "SÍ" || mainAnswerRaw?.toUpperCase() === "NO";
+      if (drugs.usesDrugs?.toUpperCase() === "SÍ") {
+        detail = `Tipos: ${isValueTrulyEmpty(drugs.type) ? "No registrado" : drugs.type}`;
       }
       break;
 
     case "alcohol":
       const alcohol = data as AlcoholData;
-      mainAnswer = alcohol.consumesAlcohol ?? "";
-      if (isYes(alcohol.consumesAlcohol)) {
-        detail = `Frecuencia: ${alcohol.quantity ?? "No registrado"}`;
+      mainAnswerRaw = alcohol.consumesAlcohol; // Sin ?? ""
+      hasMainAnswerValid = mainAnswerRaw?.toUpperCase() === "SÍ" || mainAnswerRaw?.toUpperCase() === "NO";
+      if (alcohol.consumesAlcohol?.toUpperCase() === "SÍ") {
+        detail = `Frecuencia: ${isValueTrulyEmpty(alcohol.quantity) ? "No registrado" : alcohol.quantity}`;
       }
       break;
 
     default:
-      mainAnswer = "NO REGISTRADO";
+      // Esto no debería pasar si habitType es controlado
+      mainAnswerRaw = null;
   }
+
+  // Si la respuesta principal no es "SÍ" o "NO", y no hay detalles, se considera "NO REGISTRADO"
+  const displayMainAnswer = hasMainAnswerValid ? (mainAnswerRaw as string).toUpperCase() : (detail ? (mainAnswerRaw?.toUpperCase() || "SÍ (con detalles)") : "NO REGISTRADO");
+
 
   return (
     <li className={css.twoLineItem}>
       <div className={css.firstLine}>
         {icon && <FontAwesomeIcon icon={icon} className={css.profileIcon} />}{" "}
-        <strong>{label}:</strong> {showYesNo(mainAnswer)}
+        <strong>{label}:</strong> {displayMainAnswer}
       </div>
       {detail && <div className={css.detailsLine}>{detail}</div>}
     </li>

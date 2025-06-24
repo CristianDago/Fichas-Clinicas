@@ -24,7 +24,8 @@ export const renderHowDidYouHearSelect = (
     >
   ) => void,
   label: string,
-  data: SelectOptionWithSpecify,
+  // MODIFICACIÓN: Añade un valor por defecto para 'data'
+  data: SelectOptionWithSpecify = { selected: "", specify: undefined },
   options: { value: string; label: string }[]
 ) => (
   <div className={formCss.formGroup}>
@@ -36,8 +37,8 @@ export const renderHowDidYouHearSelect = (
       onChange={handleChange}
       options={options}
     />
-    {(data.selected?.toUpperCase() === "OTROS" ||
-      !isValueEmpty(data.specify)) && (
+    {(data.selected?.toUpperCase() === "OTROS" || // Acceso seguro
+      !isValueEmpty(data.specify)) && ( // Acceso seguro
       <div className={formCss.conditionalDetailsBox}>
         <FormInput
           label="Especificar Otros"
@@ -59,7 +60,13 @@ export const renderMedicalConditionSection = (
   ) => void,
   fieldName: keyof PatientData,
   label: string,
-  data: MedicalConditionDetails
+  // MODIFICACIÓN: Añade un valor por defecto para 'data'
+  data: MedicalConditionDetails = {
+    present: "",
+    type: undefined,
+    medications: undefined,
+    dose: undefined,
+  }
 ) => {
   const handlePresentChange = (
     e: React.ChangeEvent<
@@ -83,6 +90,7 @@ export const renderMedicalConditionSection = (
     }
   };
 
+  // Acceso seguro: data.present ahora siempre es un string vacío o el valor real
   const shouldShowDetails =
     data.present?.toUpperCase() === "SÍ" ||
     !isValueEmpty(data.type) ||
@@ -136,10 +144,12 @@ export const renderSelectWithSpecify = (
     >
   ) => void,
   label: string,
-  data: SelectOptionWithSpecify,
+  // MODIFICACIÓN: Añade un valor por defecto para 'data'
+  data: SelectOptionWithSpecify = { selected: "", specify: undefined },
   options: { value: string; label: string }[],
   fullFieldName: string
 ) => {
+  // Ahora, data.selected está garantizado como un string vacío o el valor real
   const normalizedSelected = data.selected ? data.selected.toUpperCase() : "";
   const matchedOption = options.find(
     (opt) => opt.value.toUpperCase() === normalizedSelected
@@ -176,6 +186,7 @@ export const renderSelectWithSpecify = (
   };
 
   // Mostrar specify solo si la opción es OTROS y tiene valor, sino vacío
+  // data.specify ahora es seguro
   const specifyValueToShow =
     normalizedSelected === "OTROS" ? data.specify || "" : "";
 
@@ -217,21 +228,30 @@ export const renderHabitInput = (
   specificLabel?: string,
   specificType?: "text" | "number"
 ) => {
+  // Aseguramos que los objetos de hábito existan antes de acceder a sus propiedades
+  // Esto es crucial para renderHabitInput ya que recibe patientData directamente
+  const safePatientData = {
+    ...patientData,
+    smoking: patientData.smoking || { isSmoker: "", cigarettesPerDay: undefined },
+    drugs: patientData.drugs || { usesDrugs: "", type: undefined },
+    alcohol: patientData.alcohol || { consumesAlcohol: "", quantity: undefined },
+  };
+
   let isYes = false;
   let specifyValue: any;
   let specifyName = "";
 
   if (habitField === "smoking") {
-    isYes = patientData.smoking.isSmoker?.toUpperCase() === "SÍ";
-    specifyValue = patientData.smoking.cigarettesPerDay;
+    isYes = safePatientData.smoking.isSmoker?.toUpperCase() === "SÍ";
+    specifyValue = safePatientData.smoking.cigarettesPerDay;
     specifyName = "smoking.cigarettesPerDay";
   } else if (habitField === "drugs") {
-    isYes = patientData.drugs.usesDrugs?.toUpperCase() === "SÍ";
-    specifyValue = patientData.drugs.type;
+    isYes = safePatientData.drugs.usesDrugs?.toUpperCase() === "SÍ";
+    specifyValue = safePatientData.drugs.type;
     specifyName = "drugs.type";
   } else if (habitField === "alcohol") {
-    isYes = patientData.alcohol.consumesAlcohol?.toUpperCase() === "SÍ";
-    specifyValue = patientData.alcohol.quantity;
+    isYes = safePatientData.alcohol.consumesAlcohol?.toUpperCase() === "SÍ";
+    specifyValue = safePatientData.alcohol.quantity;
     specifyName = "alcohol.quantity";
   }
 
@@ -249,8 +269,9 @@ export const renderHabitInput = (
             : "consumesAlcohol"
         }`}
         type="select"
+        // Acceso seguro a las propiedades del hábito
         value={
-          (patientData as any)[habitField][
+          (safePatientData as any)[habitField][
             habitField === "smoking"
               ? "isSmoker"
               : habitField === "drugs"

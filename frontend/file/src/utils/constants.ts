@@ -12,8 +12,8 @@ export const YES_NO_OPTIONS: SelectOption[] = [
 
 export const GENDER_OPTIONS: SelectOption[] = [
   { value: "", label: "Seleccionar" },
-  { value: "HOMBRE", label: "Hombre" },
-  { value: "MUJER", label: "Mujer" },
+  { value: "MASCULINO", label: "Masculino" },
+  { value: "FEMENINO", label: "Femenino" },
   { value: "OTRO", label: "Otro" },
 ];
 

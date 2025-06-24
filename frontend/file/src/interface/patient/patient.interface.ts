@@ -1,35 +1,54 @@
+// interface/patient/patient.interface.ts
+
 // Interfaz para detalles de condiciones médicas (Sí/No con especificaciones)
 export interface MedicalConditionDetails {
-  present: "Sí" | "No" | ""; // Ahora es un string del select
-  type?: string;
-  medications?: string;
-  dose?: string;
+  present?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  type?: string | null;
+  medications?: string | null;
+  dose?: string | null;
 }
 
 // Interfaz genérica para select con opción "Otros"
 export interface SelectOptionWithSpecify {
-  selected: string; // Puede ser CUALQUIER string de la opción seleccionada (ej. "Latex", "Otros")
-  specify?: string; // Campo para especificar si 'Otros' fue seleccionado
+  selected?: string | null; // Permite `null` y `""`
+  specify?: string | null;
 }
+
+// --- Interfaces de Hábitos - AÑADIDAS AQUÍ Y EXPORTADAS ---
+export interface SmokingData {
+  isSmoker?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  cigarettesPerDay?: number | null;
+}
+
+export interface DrugsData {
+  usesDrugs?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  type?: string | null;
+}
+
+export interface AlcoholData {
+  consumesAlcohol?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  quantity?: string | null;
+}
+// --- FIN Interfaces de Hábitos ---
 
 // Interfaz principal de datos
 export interface PatientData {
   // --- Datos Personales ---
-  id?: string; // <-- ¡AÑADIDO! El ID del paciente generado por la DB
-  createdAt?: Date; // <-- ¡AÑADIDO! La fecha de creación, también del backend
+  id?: string;
+  createdAt?: Date;
   name: string;
   lastname: string;
   rut: string;
-  age?: number;
-  gender: "Hombre" | "Mujer" | "Otro" | "";
-  weight?: number;
-  height?: number;
-  imc?: number;
-  email: string;
-  phone: string;
-  children?: number;
-  occupation?: string;
-  reasonForConsultation?: string;
+  age?: number | null; // Puedes añadir `| null` a los números también si pueden venir como null
+  gender?: "Masculino" | "Femenino" | "Otro" | "" | null; // Permite `null` y `""`
+  weight?: number | null;
+  height?: number | null;
+  imc?: number | null;
+  email?: string | null;
+  phone?: string | null;
+  children?: number | null;
+  occupation?: string | null;
+  reasonForConsultation?: string | null;
   howDidYouHear: SelectOptionWithSpecify;
   // --- Antecedentes Médicos ---
   cardiovascular: MedicalConditionDetails;
@@ -44,36 +63,31 @@ export interface PatientData {
   sleepApnea: MedicalConditionDetails;
   eatingDisorder: MedicalConditionDetails;
   currentMedicationUse: {
-    present: "Sí" | "No" | "";
-    specify?: string;
+    present?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+    specify?: string | null;
   };
   otherDiseasesNotMentioned: MedicalConditionDetails;
   // --- Hábitos ---
-  physicalActivity: "Sí" | "No" | "";
-  smoking: {
-    isSmoker: "Sí" | "No" | "";
-    cigarettesPerDay?: number;
-  };
-  drugs: {
-    usesDrugs: "Sí" | "No" | "";
-    type?: string;
-  };
-  alcohol: {
-    consumesAlcohol: "Sí" | "No" | "";
-    quantity?: string;
-  };
+  physicalActivity?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  smoking: SmokingData; // ¡Ahora usa la interfaz exportada!
+  drugs: DrugsData;     // ¡Ahora usa la interfaz exportada!
+  alcohol: AlcoholData; // ¡Ahora usa la interfaz exportada!
   // --- Antecedentes Quirúrgicos ---
   surgeryDetails: {
-    type: SelectOptionWithSpecify; // Usa SelectOptionWithSpecify
-    anesthesiaType: SelectOptionWithSpecify; // Usa SelectOptionWithSpecify
-    adverseEffect: SelectOptionWithSpecify; // Usa SelectOptionWithSpecify (simplificamos para consistencia)
+    type: SelectOptionWithSpecify;
+    anesthesiaType: SelectOptionWithSpecify;
+    adverseEffect: SelectOptionWithSpecify;
   };
   // --- Procedimientos ---
-  suggestedTreatmentBySurgeon?: string;
-  patientDecidedTreatment?: string;
+  suggestedTreatmentBySurgeon?: string | null;
+  patientDecidedTreatment?: string | null;
 
   // --- Documentación ---
-  document1?: File | null;
-  document2?: File | null;
-  document3?: File | null;
+  document1?: File | string | null;
+  document2?: File | string | null;
+  document3?: File | string | null;
+
+  document1DriveId?: string | null;
+  document2DriveId?: string | null;
+  document3DriveId?: string | null;
 }

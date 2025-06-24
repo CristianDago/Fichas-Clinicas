@@ -1,108 +1,99 @@
+// backend/src/services/patient.service.ts
+
 import { Profile } from "../models/profile.model";
 import { HttpError } from "../utils/http.error.util";
 import { googleDriveService } from "./google.drive.service";
+import { validateField } from "../utils/validation.utils"; // <-- Nueva importación de la utilidad
 import {
   PatientCreationAttributes,
   PatientUpdateAttributes,
 } from "../interfaces/patient.backend.interface";
 
-const createPatient = async (
-  patientData: PatientCreationAttributes
-): Promise<Omit<Profile, "id" | "createdAt">> => {
-  const { phone, name, lastname } = patientData;
+class PatientService {
+  // --- 1. Método para crear un paciente ---
+  // Ahora retorna una instancia completa de Profile.
+  async createPatient(
+    patientData: PatientCreationAttributes
+  ): Promise<Profile> {
+    const { name, lastname } = patientData;
 
-  const validateField = (field: any, fieldName: string): void => {
-    if (!field) {
-      throw new HttpError(`${fieldName} es obligatorio`, 400);
+    validateField(name, "El nombre"); // Uso de la utilidad
+    validateField(lastname, "El apellido"); // Uso de la utilidad
+
+    const newPatient = await Profile.create(patientData);
+    return newPatient; // Retorna la instancia de Sequelize directamente
+  }
+
+  // --- 2. Método para obtener un paciente por ID ---
+  // Retorna una instancia de Profile o null. Esto ya estaba correcto.
+  async getPatientById(id: string): Promise<Profile | null> {
+    const patient = await Profile.findByPk(id);
+    // No lanzamos HttpError aquí, el controlador lo manejará si retorna null.
+    return patient;
+  }
+
+  // --- 3. Método para eliminar un paciente ---
+  // Retorna una instancia de Profile. Esto ya estaba correcto.
+  async deletePatientById(id: string): Promise<Profile> {
+    const patient = await Profile.findByPk(id);
+    if (!patient) {
+      throw new HttpError("No se encontró el paciente para eliminar", 404);
     }
-  };
 
-  validateField(name, "El nombre");
-  validateField(lastname, "El apellido");
+    // Lógica para eliminar archivos de Drive
+    if (patient.document1DriveId) {
+      await googleDriveService.deleteFile(patient.document1DriveId);
+    }
+    if (patient.document2DriveId) {
+      await googleDriveService.deleteFile(patient.document2DriveId);
+    }
+    if (patient.document3DriveId) {
+      await googleDriveService.deleteFile(patient.document3DriveId);
+    }
 
-  const newPatient = await Profile.create(patientData);
-  const { id, createdAt, ...patientWithoutIdAndCreatedAt } =
-    newPatient.toJSON();
-
-  return patientWithoutIdAndCreatedAt;
-};
-
-const getPatientById = async (id: string): Promise<Profile> => {
-  const patient = await Profile.findByPk(id);
-  if (!patient) throw new HttpError("El ID de paciente no es válido", 404);
-  return patient;
-};
-
-const deletePatientById = async (id: string): Promise<Profile> => {
-  const patient = await Profile.findByPk(id);
-  if (!patient) {
-    throw new HttpError("No se encontró el paciente para eliminar", 404);
+    await patient.destroy();
+    return patient; // Retorna la instancia eliminada
   }
 
-  if (patient.document1DriveId) {
-    await googleDriveService.deleteFile(patient.document1DriveId);
-  }
-  if (patient.document2DriveId) {
-    await googleDriveService.deleteFile(patient.document2DriveId);
-  }
-  if (patient.document3DriveId) {
-    await googleDriveService.deleteFile(patient.document3DriveId);
-  }
+  // --- 4. Método para actualizar un paciente ---
+  // Ahora retorna una instancia completa de Profile.
+  async updatePatientById(
+    id: string,
+    patientData: PatientUpdateAttributes
+  ): Promise<Profile> {
+    const patientToUpdate = await Profile.findByPk(id);
+    if (!patientToUpdate) {
+      throw new HttpError("No se pudo actualizar el paciente: ID inválido", 400);
+    }
 
-  await patient.destroy();
-  return patient;
-};
+    const fileFields = [
+      { field: "document1", driveIdField: "document1DriveId" },
+      { field: "document2", driveIdField: "document2DriveId" },
+      { field: "document3", driveIdField: "document3DriveId" },
+    ];
 
-const updatePatientById = async (
-  id: string,
-  patientData: PatientUpdateAttributes
-): Promise<Omit<Profile, "id" | "createdAt">> => {
-  const patientToUpdate = await Profile.findByPk(id);
-  if (!patientToUpdate) {
-    throw new HttpError("No se pudo actualizar el paciente: ID inválido", 400);
-  }
-
-  const fileFields = [
-    { field: "document1", driveIdField: "document1DriveId" },
-    { field: "document2", driveIdField: "document2DriveId" },
-    { field: "document3", driveIdField: "document3DriveId" },
-  ];
-
-  for (const { field, driveIdField } of fileFields) {
-    if (patientData[field as keyof PatientUpdateAttributes] === null) {
-      if (patientToUpdate[driveIdField as keyof Profile]) {
-        await googleDriveService.deleteFile(
-          patientToUpdate[driveIdField as keyof Profile] as string
-        );
+    for (const { field, driveIdField } of fileFields) {
+      if (patientData[field as keyof PatientUpdateAttributes] === null) {
+        if (patientToUpdate[driveIdField as keyof Profile]) {
+          await googleDriveService.deleteFile(
+            patientToUpdate[driveIdField as keyof Profile] as string
+          );
+        }
+        (patientData as any)[driveIdField] = null;
       }
-      (patientData as any)[driveIdField] = null;
     }
+
+    const updatedInstance = await patientToUpdate.update(patientData);
+    return updatedInstance; // Retorna la instancia de Sequelize actualizada
   }
 
-  await patientToUpdate.update(patientData);
-
-  const {
-    id: patientId,
-    createdAt,
-    ...patientWithoutIdAndCreatedAt
-  } = patientToUpdate.toJSON();
-
-  return patientWithoutIdAndCreatedAt;
-};
-
-const getAllPatients = async (): Promise<Profile[]> => {
-  const patients = await Profile.findAll();
-  if (!patients.length) {
-    throw new HttpError("No se encontraron pacientes registrados", 404);
+  // --- 5. Método para obtener todos los pacientes ---
+  // Retorna un array de instancias de Profile. Esto ya estaba correcto.
+  async getAllPatients(): Promise<Profile[]> {
+    const patients = await Profile.findAll();
+    // No lanzamos HttpError si la lista está vacía, el controlador decidirá qué hacer.
+    return patients; // Retorna el array de instancias de Sequelize
   }
+}
 
-  return patients.map((patient) => patient.toJSON());
-};
-
-export const patientService = {
-  createPatient,
-  getPatientById,
-  deletePatientById,
-  updatePatientById,
-  getAllPatients,
-};
+export const patientService = new PatientService();

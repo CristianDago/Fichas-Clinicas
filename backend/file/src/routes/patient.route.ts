@@ -1,25 +1,24 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { patientController } from "../controllers/patient.controller"; // Importa el controlador renombrado
-import { verifyToken } from "../middlewares/jwt.middlewares"; // Asegúrate de que esta ruta sea correcta
-import { upload } from "../middlewares/multer.middleware"; // Asegúrate de que esta ruta sea correcta
-import { MulterRequest } from "../interfaces/express.interface"; // Asegúrate de que esta ruta sea correcta
+import { patientController } from "../controllers/patient.controller";
+import { verifyToken } from "../middlewares/jwt.middlewares";
+import { upload } from "../middlewares/multer.middleware";
+import { MulterRequest } from "../interfaces/express.interface";
 
 const router = Router();
 
 router.use(verifyToken);
 
-router.get("/", patientController.getAllPatientsHandler); // Renombrado
+router.get("/", patientController.getAllPatientsHandler);
 
 router.post(
   "/",
-  // Adaptar 'upload.fields' para los nuevos nombres de documentos
   upload.fields([
     { name: "document1", maxCount: 1 },
     { name: "document2", maxCount: 1 },
     { name: "document3", maxCount: 1 },
   ]),
   async (req: Request, res: Response, next: NextFunction) => {
-    await patientController.createPatientHandler( // Renombrado
+    await patientController.createPatientHandler(
       req as MulterRequest,
       res,
       next
@@ -27,18 +26,17 @@ router.post(
   }
 );
 
-router.get("/:id", patientController.getPatientByIdHandler); // Renombrado
+router.get("/:id", patientController.getPatientByIdHandler);
 
 router.put(
   "/:id",
-  // Adaptar 'upload.fields' para los nuevos nombres de documentos
   upload.fields([
     { name: "document1", maxCount: 1 },
     { name: "document2", maxCount: 1 },
     { name: "document3", maxCount: 1 },
   ]),
   async (req: Request, res: Response, next: NextFunction) => {
-    await patientController.updatePatientHandler( // Renombrado
+    await patientController.updatePatientHandler(
       req as MulterRequest,
       res,
       next
@@ -46,6 +44,6 @@ router.put(
   }
 );
 
-router.delete("/:id", patientController.deletePatientHandler); // Renombrado
+router.delete("/:id", patientController.deletePatientHandler);
 
 export default router;

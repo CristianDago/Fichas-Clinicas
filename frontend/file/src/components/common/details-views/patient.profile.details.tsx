@@ -1,7 +1,7 @@
 import { Grid } from "../grid/grid";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { PatientDetailsProps } from "../../../interface/common/forms/form.renderers";
+import { PatientDetailsProps } from "../../../interface/common/forms/form.renderers"; // Asegúrate de que esta ruta sea correcta
 import {
   faCircleUser,
   faFile,
@@ -35,25 +35,35 @@ import {
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 
-// Importa los nuevos componentes de display
+// Importa todas las interfaces relevantes desde tu archivo principal de interfaces
+import {
+  PatientData,
+} from "../../../interface/patient/patient.interface"; // <-- Importación clave
+
 import ProfileField from "../profile-field/profile.field";
 import MedicalConditionDisplay from "./medical.condition.display";
 import SelectWithSpecifyDisplay from "./select.with.specify.display";
 import HabitDisplay from "./habit.display";
+
+// Asegúrate de que `isValueTrulyEmpty` esté importada o definida si la usas localmente aquí.
+// Idealmente, deberías importarla desde `utils/helpers.ts` como hicimos antes.
+const isValueTrulyEmpty = (val: any): boolean => {
+  return (
+    val === null ||
+    val === undefined ||
+    (typeof val === "string" && val.trim() === "") ||
+    (typeof val === "number" && isNaN(val))
+  );
+};
+
 
 const PatientDetails: React.FC<PatientDetailsProps> = ({
   patient,
   onEdit,
   onDelete,
 }) => {
-  // Función para obtener el valor a mostrar para campos primitivos o simples strings
   const getSimpleValue = (value: any): string => {
-    return value === null ||
-      value === undefined ||
-      (typeof value === "string" && value.trim() === "") ||
-      (typeof value === "number" && isNaN(value))
-      ? "NO REGISTRADO"
-      : String(value);
+    return isValueTrulyEmpty(value) ? "NO REGISTRADO" : String(value);
   };
 
   const getDocumentButton = (label: string, link?: string | File | null) => {
@@ -74,112 +84,134 @@ const PatientDetails: React.FC<PatientDetailsProps> = ({
     }
   };
 
-  // --- ¡AJUSTE CLAVE 1: Creación de patientSafe para asegurar que los objetos anidados existan! ---
-  const patientSafe = {
-    ...patient,
-    // Datos Personales (objetos simples, si los tuvieras)
+  // --- ¡SOLUCIÓN CLAVE AQUÍ: Asigna explícitamente el tipo PatientData! ---
+  // Esto le dice a TypeScript que `patientSafe` debe tener la estructura de `PatientData`.
+  const patientSafe: PatientData = {
+    ...patient, // Propaga todas las propiedades del paciente.
+
+    // Sobrescribe/asegura la estructura de las propiedades JSON anidadas.
+    // Usamos `patient.prop || valorPorDefecto` para asegurar que siempre sea un objeto válido,
+    // y `undefined` para los valores internos si no hay dato.
     howDidYouHear: patient.howDidYouHear || {
-      selected: "",
+      selected: undefined,
       specify: undefined,
     },
 
-    // Antecedentes Médicos (MedicalConditionDetails)
     cardiovascular: patient.cardiovascular || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     ophthalmological: patient.ophthalmological || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     psychologicalPsychiatric: patient.psychologicalPsychiatric || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     diabetes: patient.diabetes || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     hypertension: patient.hypertension || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
-    allergies: patient.allergies || { selected: "", specify: undefined }, // SelectOptionWithSpecify
+    allergies: patient.allergies || { selected: undefined, specify: undefined },
     autoimmuneDiseases: patient.autoimmuneDiseases || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     hematologicalDiseases: patient.hematologicalDiseases || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     respiratoryDiseases: patient.respiratoryDiseases || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     sleepApnea: patient.sleepApnea || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     eatingDisorder: patient.eatingDisorder || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
     currentMedicationUse: patient.currentMedicationUse || {
-      present: "",
+      present: undefined,
       specify: undefined,
-    }, // { present, specify }
+    },
     otherDiseasesNotMentioned: patient.otherDiseasesNotMentioned || {
-      present: "",
+      present: undefined,
       type: undefined,
       medications: undefined,
       dose: undefined,
     },
 
-    // Hábitos (Objetos)
-    smoking: patient.smoking || { isSmoker: "", cigarettesPerDay: undefined },
-    drugs: patient.drugs || { usesDrugs: "", type: undefined },
-    alcohol: patient.alcohol || { consumesAlcohol: "", quantity: undefined },
+    smoking: patient.smoking || { isSmoker: undefined, cigarettesPerDay: undefined },
+    drugs: patient.drugs || { usesDrugs: undefined, type: undefined },
+    alcohol: patient.alcohol || { consumesAlcohol: undefined, quantity: undefined },
 
-    // Antecedentes Quirúrgicos (Objetos anidados)
+    // Para `surgeryDetails`, asumimos que `patient.surgeryDetails` ya es un objeto (gracias a la normalización en `usePatientProfile`).
+    // Aquí solo aseguramos que sus propiedades internas sean objetos válidos.
     surgeryDetails: {
-      type: patient.surgeryDetails?.type || {
-        selected: "",
-        specify: undefined,
-      },
-      anesthesiaType: patient.surgeryDetails?.anesthesiaType || {
-        selected: "",
-        specify: undefined,
-      },
-      adverseEffect: patient.surgeryDetails?.adverseEffect || {
-        selected: "",
-        specify: undefined,
-      },
+      type: patient.surgeryDetails.type || { selected: undefined, specify: undefined },
+      anesthesiaType: patient.surgeryDetails.anesthesiaType || { selected: undefined, specify: undefined },
+      adverseEffect: patient.surgeryDetails.adverseEffect || { selected: undefined, specify: undefined },
     },
-    // Procedimientos (textareas pueden ser null)
-    suggestedTreatmentBySurgeon:
-      patient.suggestedTreatmentBySurgeon || undefined,
-    patientDecidedTreatment: patient.patientDecidedTreatment || undefined,
+    
+    // Usamos `??` (Nullish Coalescing Operator) para mantener `null` si viene del backend,
+    // o para usar `undefined` si no viene nada.
+    suggestedTreatmentBySurgeon: patient.suggestedTreatmentBySurgeon ?? undefined,
+    patientDecidedTreatment: patient.patientDecidedTreatment ?? undefined,
+    
+    // Documentación y Drive IDs (usamos `?? null` para mantener `null` si viene así)
+    document1: patient.document1 ?? null,
+    document2: patient.document2 ?? null,
+    document3: patient.document3 ?? null,
+    document1DriveId: patient.document1DriveId ?? null,
+    document2DriveId: patient.document2DriveId ?? null,
+    document3DriveId: patient.document3DriveId ?? null,
+
+    // Asegura que estas propiedades que no inicializas explícitamente se copien de `patient`.
+    // Si PatientData requiere id y createdAt (no opcionales), deberías proveerlos.
+    id: patient.id,
+    createdAt: patient.createdAt,
+    // Otras propiedades de PatientData que no tienen lógica de sobrescritura JSON
+    gender: patient.gender ?? undefined,
+    rut: patient.rut ?? undefined,
+    age: patient.age ?? undefined,
+    weight: patient.weight ?? undefined,
+    height: patient.height ?? undefined,
+    imc: patient.imc ?? undefined,
+    email: patient.email ?? undefined,
+    phone: patient.phone ?? undefined,
+    children: patient.children ?? undefined,
+    occupation: patient.occupation ?? undefined,
+    reasonForConsultation: patient.reasonForConsultation ?? undefined,
+    physicalActivity: patient.physicalActivity ?? undefined,
+
   };
 
   return (

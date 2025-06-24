@@ -1,12 +1,24 @@
 import {
-  AllowNull, Column, DataType, Default, IsUUID, Model, PrimaryKey, Table, BeforeCreate, BeforeUpdate,
+  AllowNull,
+  Column,
+  DataType,
+  Default,
+  IsUUID,
+  Model,
+  PrimaryKey,
+  Table,
+  BeforeCreate,
+  BeforeUpdate,
 } from "sequelize-typescript";
 import { DateTime } from "luxon";
-import { MedicalConditionDetailsBackend, SelectOptionWithSpecifyBackend } from '../interfaces/patient.backend.interface';
+import {
+  MedicalConditionDetailsBackend,
+  SelectOptionWithSpecifyBackend,
+} from "../interfaces/patient.backend.interface";
 
 @Table({
-  tableName: 'Profiles',
-  modelName: 'Profile'
+  tableName: "Profiles",
+  modelName: "Profile",
 })
 export class Profile extends Model {
   @IsUUID(4)
@@ -64,75 +76,87 @@ export class Profile extends Model {
   @Column(DataType.TEXT)
   declare reasonForConsultation?: string;
 
-  @AllowNull(false) // howDidYouHear es un objeto JSONB, debe ser no nulo si siempre se envía un objeto (aunque vacío)
-  @Column(DataType.JSONB)
+  @AllowNull(false)
+  @Column(DataType.JSON)
   declare howDidYouHear: SelectOptionWithSpecifyBackend;
 
-  @AllowNull(true) // <-- ¡AJUSTADO! Género ahora puede ser NULL
+  @AllowNull(true)
   @Column(DataType.STRING)
   declare gender: string;
 
-  // --- Antecedentes Médicos (JSONB) ---
-  // Todos estos campos JSONB ya estaban como @AllowNull(false) en tu código anterior
-  // si esperas que siempre se envíe un objeto {}
+  // --- Antecedentes Médicos ---
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare cardiovascular: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare ophthalmological: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare psychologicalPsychiatric: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare diabetes: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare hypertension: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare allergies: SelectOptionWithSpecifyBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare autoimmuneDiseases: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare hematologicalDiseases: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare respiratoryDiseases: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare sleepApnea: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare eatingDisorder: MedicalConditionDetailsBackend;
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
-  declare currentMedicationUse: { present: string; specify?: string; };
+  @Column(DataType.JSON)
+  declare currentMedicationUse: { present: string; specify?: string };
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare otherDiseasesNotMentioned: MedicalConditionDetailsBackend;
 
   // --- Hábitos ---
-  @AllowNull(true) // <-- ¡AJUSTADO! Actividad Física ahora puede ser NULL
+  @AllowNull(true)
   @Column(DataType.STRING)
   declare physicalActivity: string;
 
   @AllowNull(false)
-  @Column(DataType.JSONB)
-  declare smoking: { isSmoker: string; cigarettesPerDay?: number; };
+  @Column(DataType.JSON)
+  declare smoking: { isSmoker: string; cigarettesPerDay?: number };
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
-  declare drugs: { usesDrugs: string; type?: string; };
+  @Column(DataType.JSON)
+  declare drugs: { usesDrugs: string; type?: string };
+
   @AllowNull(false)
-  @Column(DataType.JSONB)
-  declare alcohol: { consumesAlcohol: string; quantity?: string; };
+  @Column(DataType.JSON)
+  declare alcohol: { consumesAlcohol: string; quantity?: string };
 
   // --- Antecedentes Quirúrgicos ---
   @AllowNull(false)
-  @Column(DataType.JSONB)
+  @Column(DataType.JSON)
   declare surgeryDetails: {
     type: SelectOptionWithSpecifyBackend;
     anesthesiaType: SelectOptionWithSpecifyBackend;
@@ -143,6 +167,7 @@ export class Profile extends Model {
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare suggestedTreatmentBySurgeon?: string;
+
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare patientDecidedTreatment?: string;
@@ -151,9 +176,11 @@ export class Profile extends Model {
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare document1?: string;
+
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare document2?: string;
+
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare document3?: string;
@@ -162,9 +189,11 @@ export class Profile extends Model {
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare document1DriveId?: string | null;
+
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare document2DriveId?: string | null;
+
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare document3DriveId?: string | null;
@@ -176,10 +205,15 @@ export class Profile extends Model {
   @BeforeCreate
   @BeforeUpdate
   static adjustDates(instance: Profile) {
-    const adjustDateToChileTimezone = (date: Date | undefined): Date | undefined => {
+    const adjustDateToChileTimezone = (
+      date: Date | undefined
+    ): Date | undefined => {
       if (!date) return date;
-      return DateTime.fromJSDate(date).setZone("America/Santiago").toJSDate();
+      return DateTime.fromJSDate(date)
+        .setZone("America/Santiago")
+        .toJSDate();
     };
+
     if (instance.createdAt !== undefined) {
       instance.createdAt = adjustDateToChileTimezone(instance.createdAt);
     }

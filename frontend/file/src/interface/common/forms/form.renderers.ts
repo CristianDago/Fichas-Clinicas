@@ -1,46 +1,44 @@
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { MedicalConditionDetails } from "../../../interface/patient/patient.interface";
-import { PatientData } from "../../../interface/patient/patient.interface";
-import { SelectOptionWithSpecify } from "../../../interface/patient/patient.interface";
+// Importa TODAS las interfaces de datos desde tu archivo principal de interfaces
+import {
+  IconDefinition
+} from "@fortawesome/fontawesome-svg-core";
+import {
+  MedicalConditionDetails,
+  PatientData,
+  SelectOptionWithSpecify,
+  SmokingData, // <-- Ahora importadas desde patient.interface.ts
+  DrugsData, // <-- Ahora importadas desde patient.interface.ts
+  AlcoholData, // <-- Ahora importadas desde patient.interface.ts
+} from "../../../interface/patient/patient.interface"; // <-- Asegúrate que la ruta sea correcta
+
+// --- ELIMINA CUALQUIER OTRA DEFINICIÓN DUPLICADA DE INTERFACES AQUÍ.
+// Solo deben estar las interfaces de las PROPS para los componentes. ---
 
 export interface MedicalConditionDisplayProps {
   icon: IconDefinition;
   label: string;
-  data: MedicalConditionDetails;
+  data: MedicalConditionDetails; // Usa la interfaz importada (que permite null/undefined)
 }
 
 export interface PatientDetailsProps {
-  patient: PatientData;
+  patient: PatientData; // Usa la interfaz importada (que permite null/undefined)
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export interface Props {
+export interface Props { // Interfaz para SelectWithSpecifyDisplayProps
   icon: IconDefinition;
   label: string;
-  data: SelectOptionWithSpecify;
+  data: SelectOptionWithSpecify; // Usa la interfaz importada (que permite null/undefined)
 }
 
-export interface SmokingData {
-  isSmoker: string; // "Sí" | "No" | ""
-  cigarettesPerDay?: number;
-}
-
-export interface DrugsData {
-  usesDrugs: string; // "Sí" | "No" | ""
-  type?: string;
-}
-
-export interface AlcoholData {
-  consumesAlcohol: string; // "Sí" | "No" | ""
-  quantity?: string;
-}
-
+// Estos tipos deben coincidir exactamente con los que importaste arriba
 type HabitType = "smoking" | "drugs" | "alcohol";
 
 export interface HabitDisplayProps {
-  icon?: IconDefinition;
+  icon?: IconDefinition; // Hazlo opcional si a veces no se pasa
   label: string;
-  data: SmokingData | DrugsData | AlcoholData | string;
+  // --- ¡SOLUCIÓN CLAVE AQUÍ: ELIMINAMOS `| string` de la unión de tipos para `data`! ---
+  data: SmokingData | DrugsData | AlcoholData;
   habitType: HabitType;
 }

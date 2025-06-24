@@ -2,23 +2,29 @@ import { NextFunction, Request, Response } from "express";
 import { patientService } from "../services/patient.service";
 import { MulterRequest } from "../interfaces/express.interface";
 import {
-  processPatientFiles, // Importa la utilidad renombrada
-  normalizePatientData, // Importa la utilidad renombrada
-} from "../utils/patient.utils"; // Asegúrate de que esta ruta sea correcta
-import { Profile } from "../models/profile.model"; // Importa el modelo Profile
+  processPatientFiles,
+  normalizePatientData, // Asumo que esto es para normalizar req.body (ej. parsear JSON strings de FormData)
+} from "../utils/patient.utils"; // Mantener este import si es relevante para req.body
+import { Profile } from "../models/profile.model";
 
-const createPatientHandler = async ( // Renombrado
+// --- NUEVAS IMPORTACIONES DE LAS FUNCIONES NORMALIZADORAS ---
+import {
+  parseJsonStringIfValid, // Aunque no se usa directamente en handlers, está en normalizePatientDataForFrontend
+  normalizePatientDataForFrontend,
+} from "../utils/patient.data.normalizer"; // <-- NUEVA RUTA DEL ARCHIVO
+
+
+const createPatientHandler = async (
   req: MulterRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    let patientData = normalizePatientData(req.body); // Normaliza los datos
-    const uploadedFileDetails = await processPatientFiles(req); // Procesa los nuevos archivos
+    let patientData = normalizePatientData(req.body); // Asumo que esto ya maneja el parseo de JSON strings de req.body
+    const uploadedFileDetails = await processPatientFiles(req);
 
-    const newPatientData = {
+    const newPatientDataToSave = {
       ...patientData,
-      // Asignar links e IDs de Google Drive a los nuevos campos de documento
       document1: uploadedFileDetails.document1?.link,
       document1DriveId: uploadedFileDetails.document1?.id,
       document2: uploadedFileDetails.document2?.link,
@@ -27,49 +33,57 @@ const createPatientHandler = async ( // Renombrado
       document3DriveId: uploadedFileDetails.document3?.id,
     };
 
-    const newPatient = await patientService.createPatient(newPatientData); // Llama al servicio de paciente
-    res.json(newPatient);
-  } catch (error) {
+    const newPatient = await patientService.createPatient(newPatientDataToSave); 
+
+    const responsePatient = normalizePatientDataForFrontend(newPatient); // Usa la función importada
+    res.json(responsePatient);
+  } catch (error: any) {
     next(error);
   }
 };
 
-const getPatientByIdHandler = async ( // Renombrado
+const getPatientByIdHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.params;
-    const patient = await patientService.getPatientById(id); // Llama al servicio de paciente
-    res.json(patient);
-  } catch (error) {
+    const patient = await patientService.getPatientById(id);
+    if (!patient) {
+      return res.status(404).json({ message: "Paciente no encontrado" });
+    }
+    
+    const patientPlainObject = patient.toJSON();
+
+    const responsePatient = normalizePatientDataForFrontend(patientPlainObject); // Usa la función importada
+
+    res.json(responsePatient);
+  } catch (error: any) {
     next(error);
   }
 };
 
-const updatePatientHandler = async ( // Renombrado
+const updatePatientHandler = async (
   req: MulterRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.params;
-    const existingPatient = (await patientService.getPatientById( // Busca en servicio de paciente
+    const existingPatient = (await patientService.getPatientById(
       id
-    )) as Profile; // Tipo Profile
+    )) as Profile;
     if (!existingPatient) {
       return res.status(404).json({ message: "Paciente no encontrado" });
     }
 
-    const patientData = normalizePatientData(req.body); // Normaliza los datos
+    let patientData = normalizePatientData(req.body);
 
-    // --- Lógica de Manejo de Archivos en Update ---
-    // Los campos de archivo que el frontend envía con `null` o `undefined`
-    // Si el frontend envía un archivo nuevo, multer ya lo adjunta a `req.files`.
     const uploadedFileDetails = await processPatientFiles(req);
 
-    const updatedData: any = { ...patientData };
+    const updatedDataToSave: any = { ...patientData };
+
     const fileFields = [
       { field: "document1", driveIdField: "document1DriveId" },
       { field: "document2", driveIdField: "document2DriveId" },
@@ -80,64 +94,62 @@ const updatePatientHandler = async ( // Renombrado
       const fileDetails =
         uploadedFileDetails[field as keyof typeof uploadedFileDetails];
 
-      // Caso 1: Se subió un archivo nuevo para este campo
       if (fileDetails?.link) {
-        updatedData[field] = fileDetails.link;
-        updatedData[driveIdField] = fileDetails.id;
-      }
-      // Caso 2: El frontend indicó que se elimine el archivo existente (valor === null)
-      // Si el frontend envía `null`, el servicio se encargará de borrar de Drive
-      // y poner null en la DB.
-      // Aquí, solo aseguramos que el `patientData` para el servicio tenga la instrucción `null`.
-      else if (req.body[field] === 'null') { // Multer convierte 'null' string a 'null'
-          updatedData[field] = null;
-          updatedData[driveIdField] = null;
-      }
-      // Caso 3: No se subió archivo nuevo, y no se pidió borrar. Mantenemos el valor existente de la DB.
-      else {
-          updatedData[field] = existingPatient[field as keyof Profile];
-          updatedData[driveIdField] = existingPatient[driveIdField as keyof Profile];
+        updatedDataToSave[field] = fileDetails.link;
+        updatedDataToSave[driveIdField] = fileDetails.id;
+      } else if (req.body[field] === "null") {
+        updatedDataToSave[field] = null;
+        updatedDataToSave[driveIdField] = null;
+      } else {
+        updatedDataToSave[field] = existingPatient.get(field as keyof Profile);
+        updatedDataToSave[driveIdField] = existingPatient.get(driveIdField as keyof Profile);
       }
     }
-
-    const updatedPatient = await patientService.updatePatientById( // Llama al servicio de paciente
+    
+    const updatedPatientResult = await patientService.updatePatientById(
       id,
-      updatedData
+      updatedDataToSave
     );
-    res.json(updatedPatient);
-  } catch (error) {
+
+    const updatedPatientPlainObject = updatedPatientResult.toJSON();
+
+    const responsePatient = normalizePatientDataForFrontend(updatedPatientPlainObject); // Usa la función importada
+
+    res.json(responsePatient);
+  } catch (error: any) {
     next(error);
   }
 };
 
-const deletePatientHandler = async ( // Renombrado
+const deletePatientHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.params;
-    const deletedPatient = await patientService.deletePatientById(id); // Llama al servicio de paciente
-    res.json(deletedPatient);
-  } catch (error) {
+    const deletedPatient = await patientService.deletePatientById(id);
+    res.json(deletedPatient.toJSON ? deletedPatient.toJSON() : deletedPatient);
+  } catch (error: any) {
     next(error);
   }
 };
 
-const getAllPatientsHandler = async ( // Renombrado
+const getAllPatientsHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const patients = await patientService.getAllPatients(); // Llama al servicio de paciente
-    res.json(patients);
-  } catch (error) {
+    const patients = await patientService.getAllPatients();
+    const normalizedPatientsList = patients.map(patient => normalizePatientDataForFrontend(patient.toJSON())); // Usa la función importada
+    res.json(normalizedPatientsList);
+  } catch (error: any) {
     next(error);
   }
 };
 
-export const patientController = { // Objeto de controlador renombrado
+export const patientController = {
   createPatientHandler,
   getPatientByIdHandler,
   updatePatientHandler,

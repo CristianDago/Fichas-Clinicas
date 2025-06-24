@@ -12,21 +12,23 @@ import type {
 import { toast } from "react-toastify";
 import { mapPatientToFormData } from "../utils/patient.form.mapper";
 
+// Modificación: Las propiedades pueden ser `undefined` o `null` si no hay valor lógico.
+// Asegúrate que estas constantes se usen consistentemente en todo el proyecto.
 const initialMedicalCondition: MedicalConditionDetails = {
-  present: "",
+  present: undefined, // Ahora permite undefined/null según la interfaz
   type: undefined,
   medications: undefined,
   dose: undefined,
 };
 const initialSelectOptionWithSpecify: SelectOptionWithSpecify = {
-  selected: "",
+  selected: undefined, // Ahora permite undefined/null según la interfaz
   specify: undefined,
 };
 
-
+// Modificación: Usamos `undefined` o `null` para las propiedades que no tienen un valor inicial significativo.
 const initialPatientData: PatientData = {
-  id: undefined, // ID es opcional al inicio
-  createdAt: undefined, // createdAt es opcional al inicio
+  id: undefined,
+  createdAt: undefined,
   // --- Datos Personales ---
   name: "",
   lastname: "",
@@ -38,10 +40,10 @@ const initialPatientData: PatientData = {
   email: "",
   phone: "",
   children: undefined,
-  occupation: "",
-  reasonForConsultation: "",
-  howDidYouHear: { ...initialSelectOptionWithSpecify },
-  gender: "",
+  occupation: undefined,
+  reasonForConsultation: undefined,
+  howDidYouHear: { ...initialSelectOptionWithSpecify }, // Usamos la constante con undefined
+  gender: undefined, // Si gender puede ser null/undefined en tu DB
 
   // --- Antecedentes Médicos ---
   cardiovascular: { ...initialMedicalCondition },
@@ -55,14 +57,14 @@ const initialPatientData: PatientData = {
   respiratoryDiseases: { ...initialMedicalCondition },
   sleepApnea: { ...initialMedicalCondition },
   eatingDisorder: { ...initialMedicalCondition },
-  currentMedicationUse: { present: "", specify: undefined },
+  currentMedicationUse: { present: undefined, specify: undefined }, // También usa undefined
   otherDiseasesNotMentioned: { ...initialMedicalCondition },
 
   // --- Hábitos ---
-  physicalActivity: "",
-  smoking: { isSmoker: "", cigarettesPerDay: undefined },
-  drugs: { usesDrugs: "", type: "" },
-  alcohol: { consumesAlcohol: "", quantity: undefined },
+  physicalActivity: undefined, // Si physicalActivity puede ser null/undefined en tu DB
+  smoking: { isSmoker: undefined, cigarettesPerDay: undefined }, // Usa undefined
+  drugs: { usesDrugs: undefined, type: undefined }, // Usa undefined
+  alcohol: { consumesAlcohol: undefined, quantity: undefined }, // Usa undefined
 
   // --- Antecedentes Quirúrgicos ---
   surgeryDetails: {
@@ -79,6 +81,10 @@ const initialPatientData: PatientData = {
   document1: null,
   document2: null,
   document3: null,
+  // Asegúrate de que estos campos existan en tu interfaz PatientData si son usados.
+  document1DriveId: null,
+  document2DriveId: null,
+  document3DriveId: null,
 };
 
 export const usePatientProfile = (
@@ -88,16 +94,12 @@ export const usePatientProfile = (
   const [patient, setPatient] = useState<PatientData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  // ¡CORRECCIÓN AQUÍ! Inicializamos updatedData con patientData
-  const [updatedData, setUpdatedData] = useState<PatientData | null>(
-    patient ? patient : initialPatientData
-  );
+  const [updatedData, setUpdatedData] = useState<PatientData | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isNotFound, setIsNotFound] = useState(false);
 
   // Función para obtener los datos del paciente al cargar o si cambia el ID/token
   useEffect(() => {
-
     const fetchData = async () => {
       setError(null);
       setIsNotFound(false);
@@ -111,9 +113,50 @@ export const usePatientProfile = (
         return;
       }
       try {
-        const data: PatientData = await fetchPatient(id, token);
-        setPatient(data);
-        setUpdatedData(data); // Inicializa updatedData con los datos del paciente
+        const fetchedData: PatientData = await fetchPatient(id, token);
+
+        // --- ¡¡¡NORMALIZACIÓN DE DATOS AL CARGAR!!! ---
+        // Combinamos valores por defecto con datos del backend para asegurar la estructura.
+        const normalizedData: PatientData = {
+          ...initialPatientData, // Base segura con todos los objetos JSON definidos
+          ...fetchedData,       // Sobrescribe con los datos reales del backend
+          id: fetchedData.id,
+          createdAt: fetchedData.createdAt,
+
+          // Normalización explícita para cada campo JSON completo.
+          // Usamos `|| initialPatientData.campo` para que `null` o `undefined` se conviertan al objeto predefinido.
+          howDidYouHear: fetchedData.howDidYouHear || initialPatientData.howDidYouHear,
+          cardiovascular: fetchedData.cardiovascular || initialPatientData.cardiovascular,
+          ophthalmological: fetchedData.ophthalmological || initialPatientData.ophthalmological,
+          psychologicalPsychiatric: fetchedData.psychologicalPsychiatric || initialPatientData.psychologicalPsychiatric,
+          diabetes: fetchedData.diabetes || initialPatientData.diabetes,
+          hypertension: fetchedData.hypertension || initialPatientData.hypertension,
+          allergies: fetchedData.allergies || initialPatientData.allergies,
+          autoimmuneDiseases: fetchedData.autoimmuneDiseases || initialPatientData.autoimmuneDiseases,
+          hematologicalDiseases: fetchedData.hematologicalDiseases || initialPatientData.hematologicalDiseases,
+          respiratoryDiseases: fetchedData.respiratoryDiseases || initialPatientData.respiratoryDiseases,
+          sleepApnea: fetchedData.sleepApnea || initialPatientData.sleepApnea,
+          eatingDisorder: fetchedData.eatingDisorder || initialPatientData.eatingDisorder,
+          currentMedicationUse: fetchedData.currentMedicationUse || initialPatientData.currentMedicationUse,
+          otherDiseasesNotMentioned: fetchedData.otherDiseasesNotMentioned || initialPatientData.otherDiseasesNotMentioned,
+          smoking: fetchedData.smoking || initialPatientData.smoking,
+          drugs: fetchedData.drugs || initialPatientData.drugs,
+          alcohol: fetchedData.alcohol || initialPatientData.alcohol,
+
+          // Manejo especial para `surgeryDetails` por sus sub-objetos anidados.
+          surgeryDetails: {
+            type: fetchedData.surgeryDetails?.type || initialPatientData.surgeryDetails.type,
+            anesthesiaType: fetchedData.surgeryDetails?.anesthesiaType || initialPatientData.surgeryDetails.anesthesiaType,
+            adverseEffect: fetchedData.surgeryDetails?.adverseEffect || initialPatientData.surgeryDetails.adverseEffect,
+          },
+          // Normalización para los Drive IDs si existen en tu interfaz y son parte del fetch.
+          document1DriveId: fetchedData.document1DriveId ?? null,
+          document2DriveId: fetchedData.document2DriveId ?? null,
+          document3DriveId: fetchedData.document3DriveId ?? null,
+        };
+
+        setPatient(normalizedData);
+        setUpdatedData(normalizedData);
       } catch (err: any) {
         if (
           err.message &&
@@ -123,7 +166,7 @@ export const usePatientProfile = (
             err.message.includes("ID de paciente no es válido"))
         ) {
           setIsNotFound(true);
-          setError(null); // Limpiar error si es un 404 de "no encontrado"
+          setError(null);
         } else {
           setError(
             err.message || "Error desconocido al cargar la ficha clínica."
@@ -136,38 +179,39 @@ export const usePatientProfile = (
     fetchData();
   }, [id, token]);
 
-  // Función para activar el modo de edición
-  const handleEdit = useCallback(() => setIsEditing(true), []);
+  const handleEdit = useCallback(() => {
+    setIsEditing(true);
+    // Aseguramos que `updatedData` siempre sea un objeto PatientData válido al entrar en edición.
+    setUpdatedData(patient || initialPatientData);
+  }, [patient]);
 
-  // Función genérica para manejar cambios en los campos del formulario
+
   const handleChange = useCallback(
     (
       e:
         | React.ChangeEvent<
             HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
           >
-        | { name: keyof PatientData; value: any } // Para manejo de archivos o valores nulos pasados directamente
+        | { name: keyof PatientData; value: any }
     ) => {
       setUpdatedData((prevData) => {
-        // ¡CORRECCIÓN AQUÍ! Si no hay datos previos, crea una nueva instancia de initialPatientData
         if (!prevData) return { ...initialPatientData };
 
-        // Helper para actualizar objetos anidados de forma inmutable
         const updateNested = (obj: any, path: string[], val: any) => {
-          const newObj = { ...obj };
+          const newObj = JSON.parse(JSON.stringify(obj));
           let current = newObj;
           for (let i = 0; i < path.length - 1; i++) {
             if (!current[path[i]]) {
               current[path[i]] = {};
             }
-            current[path[i]] = { ...current[path[i]] }; // Clonar el objeto anidado para inmutabilidad
+            current[path[i]] = { ...current[path[i]] };
             current = current[path[i]];
           }
           current[path[path.length - 1]] = val;
           return newObj;
         };
 
-        const target = "target" in e ? e.target : e; // El elemento que disparó el cambio o el objeto {name, value}
+        const target = "target" in e ? e.target : e;
         const name = target.name as keyof PatientData;
         const value = "value" in target ? target.value : undefined;
         const type = "type" in target ? target.type : undefined;
@@ -178,24 +222,17 @@ export const usePatientProfile = (
 
         const path = name.split(".");
 
-        // --- Manejo de Archivos ---
         if (type === "file" && files && files.length > 0) {
-          return updateNested(prevData, path, files[0]); // Asigna el objeto File
-        }
-        // Lógica para marcar archivos como "borrados" (cuando se hace clic en "Eliminar" en el frontend)
-        else if (
+          return updateNested(prevData, path, files[0]);
+        } else if (
           !("target" in e) &&
           e.value === null &&
-          ["document1", "document2", "document3"].includes(name)
+          ["document1", "document2", "document3"].includes(name as string)
         ) {
-          return updateNested(prevData, path, null); // Establece el valor a null para indicar borrado
-        }
-
-        // --- Manejo de Selects (incluyendo "Otros" y "Sí/No") ---
-        else if (type === "select") {
+          return updateNested(prevData, path, null);
+        } else if (type === "select") {
           const isOtherSelectedValue = value === "Otros";
 
-          // Si el campo termina en '.selected' (SelectOptionWithSpecify)
           if (path.length > 1 && path[path.length - 1] === "selected") {
             const targetObjectPath = path.slice(0, path.length - 1);
             let currentNestedObject = targetObjectPath.reduce(
@@ -206,20 +243,18 @@ export const usePatientProfile = (
             currentNestedObject = { ...currentNestedObject, selected: value };
 
             if (!isOtherSelectedValue) {
-              currentNestedObject.specify = undefined; // Limpia 'specify' si no es "Otros"
+              currentNestedObject.specify = undefined;
             }
             return updateNested(
               prevData,
               targetObjectPath,
               currentNestedObject
             );
-          }
-          // Si el campo termina en '.present' (MedicalConditionDetails) o es un booleano de hábito
-          else if (
+          } else if (
             path.length > 1 &&
             (path[path.length - 1] === "present" ||
               ["isSmoker", "usesDrugs", "consumesAlcohol"].includes(
-                path[path.length - 1]
+                path[path.length - 1] as string
               ))
           ) {
             const sectionName = path[0];
@@ -228,7 +263,6 @@ export const usePatientProfile = (
 
             updatedSection[fieldName] = value;
 
-            // Lógica de limpieza si el valor es 'No' o 'Seleccionar' (valor vacío)
             if (value === "No" || value === "") {
               if (sectionName === "smoking") {
                 updatedSection.cigarettesPerDay = undefined;
@@ -243,14 +277,14 @@ export const usePatientProfile = (
                 fieldName === "present"
               ) {
                 updatedSection = {
-                  present: "",
+                  present: undefined, // Ahora se usa undefined
                   type: undefined,
                   medications: undefined,
                   dose: undefined,
                 };
               } else {
                 updatedSection = {
-                  present: "",
+                  present: undefined, // Ahora se usa undefined
                   type: undefined,
                   medications: undefined,
                   dose: undefined,
@@ -258,14 +292,10 @@ export const usePatientProfile = (
               }
             }
             return updateNested(prevData, [sectionName], updatedSection);
-          }
-          // Lógica para campos 'select' de nivel superior (ej. 'physicalActivity' o 'gender')
-          else {
+          } else {
             return updateNested(prevData, [name], value);
           }
-        }
-        // --- Manejo de Inputs de Texto, Número, Textarea ---
-        else {
+        } else {
           const parsedValue =
             type === "number"
               ? value === ""
@@ -273,7 +303,6 @@ export const usePatientProfile = (
                 : Number(value)
               : value;
 
-          // Esto cubre todos los campos 'specify' y los detalles de MedicalConditionDetails/Hábitos
           return updateNested(prevData, path, parsedValue);
         }
       });
@@ -281,16 +310,13 @@ export const usePatientProfile = (
     []
   );
 
-  // --- Definición de handleDeleteFile ---
   const handleDeleteFile = useCallback(
     (fieldName: keyof PatientData) => {
       handleChange({ name: fieldName, value: null });
     },
     [handleChange]
   );
-  // --- FIN Definición de handleDeleteFile ---
 
-  // Función para enviar los cambios del formulario
   const handleSubmitEdit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -305,8 +331,41 @@ export const usePatientProfile = (
 
       try {
         const data = await updatePatient(id, token, formData);
-        setPatient(data);
-        setUpdatedData(data);
+        // *** IMPORTANTE: Normalizar también los datos devueltos por la actualización ***
+        const normalizedUpdatedData: PatientData = {
+            ...initialPatientData,
+            ...data,
+            id: data.id,
+            createdAt: data.createdAt,
+            howDidYouHear: data.howDidYouHear || initialPatientData.howDidYouHear,
+            cardiovascular: data.cardiovascular || initialPatientData.cardiovascular,
+            ophthalmological: data.ophthalmological || initialPatientData.ophthalmological,
+            psychologicalPsychiatric: data.psychologicalPsychiatric || initialPatientData.psychologicalPsychiatric,
+            diabetes: data.diabetes || initialPatientData.diabetes,
+            hypertension: data.hypertension || initialPatientData.hypertension,
+            allergies: data.allergies || initialPatientData.allergies,
+            autoimmuneDiseases: data.autoimmuneDiseases || initialPatientData.autoimmuneDiseases,
+            hematologicalDiseases: data.hematologicalDiseases || initialPatientData.hematologicalDiseases,
+            respiratoryDiseases: data.respiratoryDiseases || initialPatientData.respiratoryDiseases,
+            sleepApnea: data.sleepApnea || initialPatientData.sleepApnea,
+            eatingDisorder: data.eatingDisorder || initialPatientData.eatingDisorder,
+            currentMedicationUse: data.currentMedicationUse || initialPatientData.currentMedicationUse,
+            otherDiseasesNotMentioned: data.otherDiseasesNotMentioned || initialPatientData.otherDiseasesNotMentioned,
+            smoking: data.smoking || initialPatientData.smoking,
+            drugs: data.drugs || initialPatientData.drugs,
+            alcohol: data.alcohol || initialPatientData.alcohol,
+            surgeryDetails: {
+                type: data.surgeryDetails?.type || initialPatientData.surgeryDetails.type,
+                anesthesiaType: data.surgeryDetails?.anesthesiaType || initialPatientData.surgeryDetails.anesthesiaType,
+                adverseEffect: data.surgeryDetails?.adverseEffect || initialPatientData.surgeryDetails.adverseEffect,
+            },
+            // Repetimos la lógica de normalización para los Drive IDs si están en tu interfaz/modelo
+            document1DriveId: (data as any).document1DriveId ?? null,
+            document2DriveId: (data as any).document2DriveId ?? null,
+            document3DriveId: (data as any).document3DriveId ?? null,
+        };
+        setPatient(normalizedUpdatedData);
+        setUpdatedData(normalizedUpdatedData);
         setIsEditing(false);
         toast.success("Ficha clínica actualizada con éxito", {
           position: "top-right",
@@ -320,10 +379,9 @@ export const usePatientProfile = (
         );
       }
     },
-    [updatedData, id, token]
+    [updatedData, id, token, initialPatientData]
   );
 
-  // Función para eliminar un paciente
   const handleDelete = useCallback(async () => {
     if (!id || !token) return;
     if (
@@ -345,7 +403,6 @@ export const usePatientProfile = (
     }
   }, [id, token]);
 
-  // Retorna el estado y las funciones del hook
   return {
     patient,
     error,

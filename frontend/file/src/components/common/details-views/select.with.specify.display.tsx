@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
 import { Props } from "../../../interface/common/forms/form.renderers";
 
-const isValueEmpty = (val: any): boolean => {
+const isValueTrulyEmpty = (val: any): boolean => {
   return (
     val === null ||
     val === undefined ||
@@ -13,20 +13,19 @@ const isValueEmpty = (val: any): boolean => {
 };
 
 const SelectWithSpecifyDisplay: React.FC<Props> = ({ icon, label, data }) => {
-  const selected = data?.selected ?? "";
-  const specify = data?.specify ?? "";
+  // NO usamos `?? ""` aquí, para que `selected` y `specify` puedan ser `null`.
+  const selected = data?.selected;
+  const specify = data?.specify;
 
-  let displayMain = "NO REGISTRADO";
-  const details: string[] = [];
+  let displayMain = "NO REGISTRADO"; // Valor por defecto si no hay datos significativos
 
-  if (!isValueEmpty(selected)) {
-    displayMain = selected;
-  } else if (!isValueEmpty(specify)) {
-    displayMain = "Otros (sin selección principal)";
+  // Prioridad 1: Si hay una opción seleccionada (y no está vacía)
+  if (!isValueTrulyEmpty(selected)) {
+    displayMain = selected as string; // Casting seguro ahora que isValueTrulyEmpty lo validó
   }
-
-  if (!isValueEmpty(specify)) {
-    details.push(specify);
+  // Prioridad 2: Si no hay opción seleccionada, pero hay una especificación
+  else if (!isValueTrulyEmpty(specify)) {
+    displayMain = `Otros: ${specify}`;
   }
 
   return (
@@ -35,8 +34,9 @@ const SelectWithSpecifyDisplay: React.FC<Props> = ({ icon, label, data }) => {
         <FontAwesomeIcon icon={icon} className={css.profileIcon} />
         <strong>{label}:</strong> <span>{displayMain}</span>
       </div>
-      {details.length > 0 && (
-        <div className={css.detailsLine}>{details.join(" | ")}</div>
+      {/* Solo muestra la línea de detalles si `specify` no está vacío */}
+      {!isValueTrulyEmpty(specify) && (
+        <div className={css.detailsLine}>{specify}</div>
       )}
     </li>
   );

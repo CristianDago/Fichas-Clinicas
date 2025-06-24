@@ -6,14 +6,14 @@ const createSequelizeInstance = (
   connectionString: string,
   models: any[],
   name: string,
-  dialect: "mysql" | "postgres" // <-- ¡NUEVO PARÁMETRO: Dialecto!
+  dialect: "mysql" | "postgres"
 ): Sequelize => {
   if (!connectionString) {
     throw new Error(`Environment variable for ${name} database not found.`);
   }
 
   return new Sequelize(connectionString, {
-    dialect: dialect, // <-- ¡USANDO EL DIALECTO PASADO COMO ARGUMENTO!
+    dialect: dialect,
     models,
     logging: false,
   });
@@ -23,13 +23,12 @@ export const sequelizeUser = createSequelizeInstance(
   process.env.CONNECT_DG_USERS!,
   [User],
   "User",
-  "mysql" // <-- Asumiendo que User DB es MySQL
+  "mysql"
 );
 
-// ¡CAMBIO CLAVE AQUÍ! Ahora usa 'postgres' como dialecto para la DB de Profile
 export const sequelizeProfile = createSequelizeInstance(
   process.env.CONNECT_DG_PROFILE!,
   [Profile],
   "Profile",
-  "postgres" // <-- ¡DEFINIDO COMO POSTGRES PARA DESARROLLO!
+  "mysql"
 );

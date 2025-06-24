@@ -1,3 +1,5 @@
+// components/forms/add.patient.form/add.patient.form.tsx
+
 import React from "react";
 import FormInput from "../form.input";
 import { FormSection } from "../form-section/form.section";
@@ -30,6 +32,15 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
       handleChange({ target: { name, value } } as any),
   });
 
+  // Aseguramos que surgeryDetails exista antes de acceder a sus subpropiedades.
+  // Esto es una buena práctica de seguridad a nivel de componente.
+  const safeSurgeryDetails = patientData.surgeryDetails || {
+    type: { selected: undefined, specify: undefined }, // Usar `undefined` para que sea consistente con la interfaz y helpers
+    anesthesiaType: { selected: undefined, specify: undefined },
+    adverseEffect: { selected: undefined, specify: undefined },
+  };
+
+
   return (
     <form onSubmit={handleSubmit} className={formCss.patientForm}>
       {/* ---- Datos personales ---- */}
@@ -38,7 +49,7 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
           label="Nombres"
           name="name"
           type="text"
-          value={patientData.name}
+          value={patientData.name || ""}
           onChange={handleChange}
           required
         />
@@ -46,7 +57,7 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
           label="Apellidos"
           name="lastname"
           type="text"
-          value={patientData.lastname}
+          value={patientData.lastname || ""}
           onChange={handleChange}
           required
         />
@@ -61,7 +72,7 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
           label="Edad"
           name="age"
           type="number"
-          value={patientData.age || ""}
+          value={patientData.age ?? ""}
           onChange={handleChange}
         />
         <FormInput
@@ -76,21 +87,21 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
           label="Peso (kg)"
           name="weight"
           type="number"
-          value={patientData.weight || ""}
+          value={patientData.weight ?? ""}
           onChange={handleChange}
         />
         <FormInput
           label="Estatura"
           name="height"
           type="number"
-          value={patientData.height || ""}
+          value={patientData.height ?? ""}
           onChange={handleChange}
         />
         <FormInput
           label="IMC"
           name="imc"
           type="number"
-          value={patientData.imc || ""}
+          value={patientData.imc ?? ""}
           onChange={handleChange}
         />
         <FormInput
@@ -227,7 +238,7 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
           label="Realiza actividad física:"
           name="physicalActivity"
           type="select"
-          value={patientData.physicalActivity}
+          value={patientData.physicalActivity || ""}
           onChange={handleChange}
           options={YES_NO_OPTIONS}
         />
@@ -263,21 +274,21 @@ export const AddPatientForm: React.FC<AddPatientFormProps> = ({
         {renderSelectWithSpecify(
           handleChange,
           "Cirugía",
-          patientData.surgeryDetails.type,
+          safeSurgeryDetails.type,
           SURGERY_TYPE_OPTIONS,
           "surgeryDetails.type"
         )}
         {renderSelectWithSpecify(
           handleChange,
           "Tipo de anestesia",
-          patientData.surgeryDetails.anesthesiaType,
+          safeSurgeryDetails.anesthesiaType,
           ANESTHESIA_TYPE_OPTIONS,
           "surgeryDetails.anesthesiaType"
         )}
         {renderSelectWithSpecify(
           handleChange,
           "¿Presentó algún efecto adverso?",
-          patientData.surgeryDetails.adverseEffect,
+          safeSurgeryDetails.adverseEffect,
           ADVERSE_EFFECT_OPTIONS,
           "surgeryDetails.adverseEffect"
         )}

@@ -1,5 +1,3 @@
-// src/interface/hooks/document.handling.ts
-
 export interface UseDocumentHandlingHookProps<T> {
     onChange: (e: { name: keyof T; value: File | null }) => void;
   }
