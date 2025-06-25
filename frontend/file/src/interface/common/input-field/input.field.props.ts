@@ -1,4 +1,4 @@
-interface FormInputProps {
+export interface FormInputProps {
   id?: string;
   name: string;
   label: string;
@@ -14,5 +14,3 @@ interface FormInputProps {
   accept?: string;
   autocomplete?: string;
 }
-
-export default FormInputProps;

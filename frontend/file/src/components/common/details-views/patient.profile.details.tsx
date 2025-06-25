@@ -1,7 +1,7 @@
 import { Grid } from "../grid/grid";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { PatientDetailsProps } from "../../../interface/common/forms/form.renderers"; // Asegúrate de que esta ruta sea correcta
+import { PatientDetailsProps } from "../../../interface/common/forms/form.render.props"; // Asegúrate de que esta ruta sea correcta
 import {
   faCircleUser,
   faFile,
@@ -38,7 +38,7 @@ import {
 // Importa todas las interfaces relevantes desde tu archivo principal de interfaces
 import {
   PatientData,
-} from "../../../interface/patient/patient.interface"; // <-- Importación clave
+} from "../../../interface/patient/patient.interface.props"; // <-- Importación clave
 
 import ProfileField from "../profile-field/profile.field";
 import MedicalConditionDisplay from "./medical.condition.display";

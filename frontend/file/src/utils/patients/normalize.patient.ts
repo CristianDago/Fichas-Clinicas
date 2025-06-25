@@ -1,6 +1,6 @@
 // src/hooks/profile/normalize.patient.ts
 
-import type { PatientData } from "../../interface/patient/patient.interface";
+import type { PatientData } from "../../interface/patient/patient.interface.props";
 import { initialPatientData } from "../../constants/patient/patient.initial.state";
 
 export function normalizePatientData(fetchedData: PatientData): PatientData {

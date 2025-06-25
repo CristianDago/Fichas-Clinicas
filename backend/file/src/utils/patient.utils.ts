@@ -109,8 +109,6 @@ export const normalizePatientData = (rawData: any): any => {
   const data = { ...rawData };
   const result: Record<string, any> = {};
 
-  console.log("🔍 [normalizePatientData] rawData:", rawData);
-
   for (const key in data) {
     let value = data[key];
 
@@ -173,8 +171,6 @@ export const normalizePatientData = (rawData: any): any => {
 
   const cleaned = cleanEmptyValuesRecursively(result);
   const uppercased = transformStringsToUppercase(cleaned);
-
-  console.log("🧼 [normalizePatientData] Final data:", uppercased);
 
   return uppercased;
 };

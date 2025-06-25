@@ -39,7 +39,11 @@ class PatientService {
 
     // ✅ Validar campos JSON si es necesario (puedes comentar los que no necesites)
     if (patientData.cardiovascular)
-      validateJsonField(patientData.cardiovascular, ["present"], "Cardiovascular");
+      validateJsonField(
+        patientData.cardiovascular,
+        ["present"],
+        "Cardiovascular"
+      );
 
     if (patientData.diabetes)
       validateJsonField(patientData.diabetes, ["present"], "Diabetes");
@@ -48,13 +52,14 @@ class PatientService {
       validateJsonField(patientData.hypertension, ["present"], "Hipertensión");
 
     if (patientData.surgeryDetails)
-      validateJsonField(patientData.surgeryDetails, ["type", "anesthesiaType", "adverseEffect"], "Detalles quirúrgicos");
+      validateJsonField(
+        patientData.surgeryDetails,
+        ["type", "anesthesiaType", "adverseEffect"],
+        "Detalles quirúrgicos"
+      );
 
     // ✅ Crear paciente
     const newPatient = await Profile.create(patientData);
-
-    // 🧾 Verificar que los campos JSON se guardan bien
-    console.log("✅ Paciente creado:", newPatient.toJSON());
 
     return newPatient;
   }
@@ -93,12 +98,19 @@ class PatientService {
   ): Promise<Profile> {
     const patientToUpdate = await Profile.findByPk(id);
     if (!patientToUpdate) {
-      throw new HttpError("No se pudo actualizar el paciente: ID inválido", 400);
+      throw new HttpError(
+        "No se pudo actualizar el paciente: ID inválido",
+        400
+      );
     }
 
     // ✅ Validar campos JSON si es necesario
     if (patientData.cardiovascular)
-      validateJsonField(patientData.cardiovascular, ["present"], "Cardiovascular");
+      validateJsonField(
+        patientData.cardiovascular,
+        ["present"],
+        "Cardiovascular"
+      );
 
     if (patientData.diabetes)
       validateJsonField(patientData.diabetes, ["present"], "Diabetes");
@@ -107,7 +119,11 @@ class PatientService {
       validateJsonField(patientData.hypertension, ["present"], "Hipertensión");
 
     if (patientData.surgeryDetails)
-      validateJsonField(patientData.surgeryDetails, ["type", "anesthesiaType", "adverseEffect"], "Detalles quirúrgicos");
+      validateJsonField(
+        patientData.surgeryDetails,
+        ["type", "anesthesiaType", "adverseEffect"],
+        "Detalles quirúrgicos"
+      );
 
     // ✅ Manejo de eliminación de archivos Drive si vienen como null
     const fileFields = [
@@ -128,8 +144,6 @@ class PatientService {
     }
 
     const updatedInstance = await patientToUpdate.update(patientData);
-
-    console.log("🔄 Paciente actualizado:", updatedInstance.toJSON());
 
     return updatedInstance;
   }

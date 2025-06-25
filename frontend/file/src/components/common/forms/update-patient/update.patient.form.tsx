@@ -4,7 +4,7 @@ import React from "react";
 import FormInput from "../form.input";
 import { FormSection } from "../form-section/form.section";
 // Asegúrate de que PatientData se importe correctamente desde patient.interface.ts
-import { PatientData } from "../../../../interface/patient/patient.interface"; 
+import { PatientData } from "../../../../interface/patient/patient.interface.props"; 
 import formCss from "../../../../assets/styles/layout/add.patient.form.module.scss";
 import { useDocumentHandling } from "../../../../hooks/files/use.document.handling";
 

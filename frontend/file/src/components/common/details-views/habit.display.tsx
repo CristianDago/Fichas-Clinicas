@@ -5,11 +5,11 @@ import {
   SmokingData,
   DrugsData,
   AlcoholData,
-} from "../../../interface/patient/patient.interface";
+} from "../../../interface/patient/patient.interface.props";
 
 import {
   HabitDisplayProps
-} from "../../../interface/common/forms/form.renderers";
+} from "../../../interface/common/forms/form.render.props";
 
 const isValueTrulyEmpty = (val: any): boolean => {
   return (

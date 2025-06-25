@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import css from "../../../assets/styles/layout/patient.profile.module.scss";
-import { Props } from "../../../interface/common/forms/form.renderers";
+import { Props } from "../../../interface/common/forms/form.render.props";
 
 const isValueTrulyEmpty = (val: any): boolean => {
   return (

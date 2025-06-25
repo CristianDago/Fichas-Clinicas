@@ -9,7 +9,7 @@ import {
   SmokingData, // <-- Ahora importadas desde patient.interface.ts
   DrugsData, // <-- Ahora importadas desde patient.interface.ts
   AlcoholData, // <-- Ahora importadas desde patient.interface.ts
-} from "../../../interface/patient/patient.interface"; // <-- Asegúrate que la ruta sea correcta
+} from "../../patient/patient.interface.props"; // <-- Asegúrate que la ruta sea correcta
 
 // --- ELIMINA CUALQUIER OTRA DEFINICIÓN DUPLICADA DE INTERFACES AQUÍ.
 // Solo deben estar las interfaces de las PROPS para los componentes. ---

@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { mapPatientToFormData } from "../../utils/form/patient.form.mapper";
 import { initialPatientData } from "../../constants/patient/patient.initial.state";
 import { normalizePatientData } from "../../utils/patients/normalize.patient";
-import type { PatientData } from "../../interface/patient/patient.interface";
+import type { PatientData } from "../../interface/patient/patient.interface.props";
 
 export const usePatientProfile = (
   id: string | undefined,

@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import {
   UseDocumentHandlingHookProps,
   UseDocumentHandlingHookResult,
-} from "../../interface/hooks/document.handling";
+} from "../../interface/hooks/document.handling.props";
 
 export const useDocumentHandling = <T = any>({
   onChange,

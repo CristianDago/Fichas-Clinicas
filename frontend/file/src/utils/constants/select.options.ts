@@ -5,7 +5,6 @@ export interface SelectOption {
 }
 
 export const YES_NO_OPTIONS: SelectOption[] = [
-  { value: "", label: "Seleccione" },
   { value: "SÍ", label: "SÍ" },
   { value: "NO", label: "NO" },
 ];

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import FormInput from "../../components/common/forms/form.input";
-import css from "../../assets/styles/layout/login.form.module.scss";
-import LoginFormProps from "../../interface/login/login.form.props";
-import logo from "../../assets/images/logo-blanco.webp";
+import FormInput from "../../../components/common/forms/form.input";
+import css from "../../../assets/styles/layout/login.form.module.scss";
+import LoginFormProps from "../../../interface/login/login.form.props";
+import logo from "../../../assets/images/logo-blanco.webp";
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,

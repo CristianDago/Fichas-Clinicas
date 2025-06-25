@@ -1,5 +1,5 @@
 import { toast, ToastOptions } from "react-toastify";
-import { ToastMessageProps } from "../../../interface/common/toast-message/toast-message";
+import { ToastMessageProps } from "../../../interface/common/toast-message/toast-message.props";
 
 const defaultOptions: ToastOptions = {
   position: "top-right",

@@ -1,6 +1,6 @@
 // src/constants/initialPatientData.ts
 
-import type { MedicalConditionDetails, PatientData, SelectOptionWithSpecify } from "../../interface/patient/patient.interface";
+import type { MedicalConditionDetails, PatientData, SelectOptionWithSpecify } from "../../interface/patient/patient.interface.props";
 
 const initialMedicalCondition: MedicalConditionDetails = {
   present: "NO",

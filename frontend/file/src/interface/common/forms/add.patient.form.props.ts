@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react";
-import { PatientData } from "../../patient/patient.interface";
+import { PatientData } from "../../patient/patient.interface.props";
 
 export interface AddPatientFormProps {
   patientData: PatientData;

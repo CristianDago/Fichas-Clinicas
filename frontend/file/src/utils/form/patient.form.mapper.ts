@@ -1,6 +1,6 @@
 // frontend/src/utils/patient.form.mapper.ts
 
-import { PatientData } from "../../interface/patient/patient.interface";
+import { PatientData } from "../../interface/patient/patient.interface.props";
 
 export const mapPatientToFormData = (patientData: PatientData): FormData => {
   const formData = new FormData();

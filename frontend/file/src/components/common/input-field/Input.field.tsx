@@ -1,5 +1,5 @@
 import React from "react";
-import type FormInputProps from "../../../interface/common/input-field/input.field";
+import type {FormInputProps} from "../../../interface/common/input-field/input.field.props";
 
 export const FormInput: React.FC<FormInputProps> = ({
   id,

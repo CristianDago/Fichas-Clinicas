@@ -4,7 +4,7 @@ import { useAuth } from "../../components/auth/auth.context";
 import { useAddPatient } from "../../hooks/add-profile/use.add.patients";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import css from "../assets/styles/components/patient.table.module.scss";
+import css from "../../assets/styles/components/patient.table.module.scss";
 
 export default function AddPatient() {
   const { token } = useAuth();

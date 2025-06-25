@@ -4,7 +4,7 @@ import { initialPatientData } from "../../constants/patient/patient.initial.stat
 import { mapPatientToFormData } from "../../utils/form/patient.form.mapper";
 import { updateNested } from "../../utils/form/form.utils";
 import { isValueTrulyEmpty } from "../../utils/helpers/general.helpers";
-import type { PatientData } from "../../interface/patient/patient.interface";
+import type { PatientData } from "../../interface/patient/patient.interface.props";
 
 export const useAddPatient = (token: string | null) => {
   const [patientData, setPatientData] =

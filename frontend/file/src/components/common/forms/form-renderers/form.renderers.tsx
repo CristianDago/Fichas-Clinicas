@@ -5,7 +5,7 @@ import {
   PatientData,
   MedicalConditionDetails,
   SelectOptionWithSpecify,
-} from "../../../../interface/patient/patient.interface";
+} from "../../../../interface/patient/patient.interface.props";
 import { YES_NO_OPTIONS } from "../../../../utils/constants/select.options";
 
 const isValueEmpty = (val: any): boolean => {
