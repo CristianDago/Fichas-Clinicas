@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../components/auth/auth.context";
-import { usePatientProfile } from "../hooks/use.profile.patients";
-import UpdatePatientForm from "../components/common/forms/update-patient/update.patient.form";
-import PatientDetails from "../components/common/details-views/patient.profile.details";
+import { useAuth } from "../../components/auth/auth.context";
+import { usePatientProfile } from "../../hooks/profile/use.profile.patients";
+import UpdatePatientForm from "../../components/common/forms/update-patient/update.patient.form";
+import PatientDetails from "../../components/common/details-views/patient.profile.details";
 
 const PatientProfile = () => {
   const { id } = useParams<{ id: string }>();

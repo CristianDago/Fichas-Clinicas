@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { useAuthStorage } from "../components/auth/auth.storage";
+import { useAuthStorage } from "../../components/auth/auth.storage";
 import { useDecodeToken } from "./use.decode.token";
 import * as Sentry from "@sentry/react";
-import { UseLoginResult } from "../interface/hooks/login";
+import { UseLoginResult } from "../../interface/hooks/login";
 
 export const useLogin = (): UseLoginResult => {
   const { updateToken, clearToken } = useAuthStorage();

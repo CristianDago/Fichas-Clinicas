@@ -1,8 +1,8 @@
 // interface/patient/patient.interface.ts
 
-// Interfaz para detalles de condiciones médicas (Sí/No con especificaciones)
+// Interfaz para detalles de condiciones médicas (SÍ/NO con especificaciones)
 export interface MedicalConditionDetails {
-  present?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  present?: "SÍ" | "NO" | "" | null;
   type?: string | null;
   medications?: string | null;
   dose?: string | null;
@@ -10,23 +10,23 @@ export interface MedicalConditionDetails {
 
 // Interfaz genérica para select con opción "Otros"
 export interface SelectOptionWithSpecify {
-  selected?: string | null; // Permite `null` y `""`
+  selected?: string | null;
   specify?: string | null;
 }
 
 // --- Interfaces de Hábitos - AÑADIDAS AQUÍ Y EXPORTADAS ---
 export interface SmokingData {
-  isSmoker?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  isSmoker?: "SÍ" | "NO" | "" | null;
   cigarettesPerDay?: number | null;
 }
 
 export interface DrugsData {
-  usesDrugs?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  usesDrugs?: "SÍ" | "NO" | "" | null;
   type?: string | null;
 }
 
 export interface AlcoholData {
-  consumesAlcohol?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+  consumesAlcohol?: "SÍ" | "NO" | "" | null;
   quantity?: string | null;
 }
 // --- FIN Interfaces de Hábitos ---
@@ -39,8 +39,8 @@ export interface PatientData {
   name: string;
   lastname: string;
   rut: string;
-  age?: number | null; // Puedes añadir `| null` a los números también si pueden venir como null
-  gender?: "Masculino" | "Femenino" | "Otro" | "" | null; // Permite `null` y `""`
+  age?: number | null;
+  gender?: "Masculino" | "Femenino" | "Otro" | "" | null;
   weight?: number | null;
   height?: number | null;
   imc?: number | null;
@@ -50,6 +50,7 @@ export interface PatientData {
   occupation?: string | null;
   reasonForConsultation?: string | null;
   howDidYouHear: SelectOptionWithSpecify;
+
   // --- Antecedentes Médicos ---
   cardiovascular: MedicalConditionDetails;
   ophthalmological: MedicalConditionDetails;
@@ -63,21 +64,24 @@ export interface PatientData {
   sleepApnea: MedicalConditionDetails;
   eatingDisorder: MedicalConditionDetails;
   currentMedicationUse: {
-    present?: "Sí" | "No" | "" | null; // Permite `null` y `""`
+    present?: "SÍ" | "NO" | "" | null;
     specify?: string | null;
   };
   otherDiseasesNotMentioned: MedicalConditionDetails;
+
   // --- Hábitos ---
-  physicalActivity?: "Sí" | "No" | "" | null; // Permite `null` y `""`
-  smoking: SmokingData; // ¡Ahora usa la interfaz exportada!
-  drugs: DrugsData;     // ¡Ahora usa la interfaz exportada!
-  alcohol: AlcoholData; // ¡Ahora usa la interfaz exportada!
+  physicalActivity?: "SÍ" | "NO" | "" | null;
+  smoking: SmokingData;
+  drugs: DrugsData;
+  alcohol: AlcoholData;
+
   // --- Antecedentes Quirúrgicos ---
   surgeryDetails: {
     type: SelectOptionWithSpecify;
     anesthesiaType: SelectOptionWithSpecify;
     adverseEffect: SelectOptionWithSpecify;
   };
+
   // --- Procedimientos ---
   suggestedTreatmentBySurgeon?: string | null;
   patientDecidedTreatment?: string | null;

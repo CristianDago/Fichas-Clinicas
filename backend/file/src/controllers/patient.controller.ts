@@ -20,7 +20,13 @@ const createPatientHandler = async (
   next: NextFunction
 ) => {
   try {
+
+    console.log("🧾 [RAW req.body]", req.body);
+
     let patientData = normalizePatientData(req.body); // Asumo que esto ya maneja el parseo de JSON strings de req.body
+
+    console.log("✅ [Normalizado patientData]", patientData);
+
     const uploadedFileDetails = await processPatientFiles(req);
 
     const newPatientDataToSave = {
@@ -33,11 +39,13 @@ const createPatientHandler = async (
       document3DriveId: uploadedFileDetails.document3?.id,
     };
 
+    console.log("📦 [Final patientDataToSave]", newPatientDataToSave);
+    
     const newPatient = await patientService.createPatient(newPatientDataToSave); 
-
-    const responsePatient = normalizePatientDataForFrontend(newPatient); // Usa la función importada
+    const responsePatient = normalizePatientDataForFrontend(newPatient);
     res.json(responsePatient);
   } catch (error: any) {
+    console.error("❌ Error en createPatientHandler:", error);
     next(error);
   }
 };

@@ -7,7 +7,7 @@ import {
   useCallback,
 } from "react";
 import { useAuthStorage } from "./auth.storage";
-import { useDecodeToken } from "../../hooks/use.decode.token";
+import { useDecodeToken } from "../../hooks/auth/use.decode.token";
 import AuthProviderProps from "../../interface/auth/auth.provider.props";
 import AuthContextType from "../../interface/auth/auth.context.type";
 

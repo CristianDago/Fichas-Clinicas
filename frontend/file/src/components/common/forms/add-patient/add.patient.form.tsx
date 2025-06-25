@@ -5,7 +5,7 @@ import FormInput from "../form.input";
 import { FormSection } from "../form-section/form.section";
 import { AddPatientFormProps } from "../../../../interface/common/forms/add.patient.form.props";
 import formCss from "../../../../assets/styles/layout/add.patient.form.module.scss";
-import { useDocumentHandling } from "../../../../hooks/use.document.handling";
+import { useDocumentHandling } from "../../../../hooks/files/use.document.handling";
 
 import {
   YES_NO_OPTIONS,
@@ -15,12 +15,12 @@ import {
   ADVERSE_EFFECT_OPTIONS,
   HOW_DID_YOU_HEAR,
   GENDER_OPTIONS,
-} from "../../../../utils/constants";
+} from "../../../../utils/constants/select.options";
 import {
   renderMedicalConditionSection,
   renderSelectWithSpecify,
   renderHabitInput,
-} from "../form-renderers/form-renderers";
+} from "../form-renderers/form.renderers";
 
 export const AddPatientForm: React.FC<AddPatientFormProps> = ({
   patientData,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../components/auth/auth.context";
-import { fetchPatientsList } from "../utils/fetch.patient";
-import type { PatientData } from "../interface/patient/patient.interface"; // <-- Importa la interfaz PatientData
+import { useAuth } from "../../components/auth/auth.context";
+import { fetchPatientsList } from "../../utils/api/fetch.patient";
+import type { PatientData } from "../../interface/patient/patient.interface"; // <-- Importa la interfaz PatientData
 
 export const usePatientsList = () => {
   // <-- Renombrado a usePatientsList

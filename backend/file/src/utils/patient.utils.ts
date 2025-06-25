@@ -2,17 +2,13 @@ import { MulterRequest } from "../interfaces/express.interface";
 import {
   uploadFileToDrive,
   setFilePublic,
-  googleDriveService,
 } from "../services/google.drive.service";
 import fs from "fs";
 import path from "path";
-import { DateTime } from "luxon";
-import { PatientBackend } from "../interfaces/patient.backend.interface";
 
+// --- Transforma a mayúsculas (de forma recursiva) ---
 export function transformStringsToUppercase(obj: any): any {
-  if (typeof obj !== "object" || obj === null) {
-    return obj;
-  }
+  if (typeof obj !== "object" || obj === null) return obj;
 
   const transformedObj: any = {};
   for (const key in obj) {
@@ -34,6 +30,7 @@ export function transformStringsToUppercase(obj: any): any {
   return transformedObj;
 }
 
+// --- Sube un archivo y retorna {link, id} ---
 const handleFileUpload = async (file: Express.Multer.File) => {
   try {
     const filePath = path.join("uploads", file.filename);
@@ -50,6 +47,7 @@ const handleFileUpload = async (file: Express.Multer.File) => {
   }
 };
 
+// --- Procesa los archivos del formulario del paciente ---
 export const processPatientFiles = async (
   req: MulterRequest
 ): Promise<{
@@ -57,50 +55,26 @@ export const processPatientFiles = async (
   document2?: { link: string | null; id: string | null };
   document3?: { link: string | null; id: string | null };
 }> => {
-  const files = req.files as
-    | { [fieldname: string]: Express.Multer.File[] }
-    | undefined;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
 
-  const uploadedFiles: {
-    document1?: { link: string | null; id: string | null };
-    document2?: { link: string | null; id: string | null };
-    document3?: { link: string | null; id: string | null };
-  } = {};
+  const uploadedFiles: any = {};
 
-  if (files?.["document1"]?.[0]) {
-    const uploaded = await handleFileUpload(files["document1"][0]);
-    uploadedFiles.document1 = {
-      link: uploaded?.link ?? null,
-      id: uploaded?.id ?? null,
-    };
-  } else {
-    uploadedFiles.document1 = { link: null, id: null };
-  }
-
-  if (files?.["document2"]?.[0]) {
-    const uploaded = await handleFileUpload(files["document2"][0]);
-    uploadedFiles.document2 = {
-      link: uploaded?.link ?? null,
-      id: uploaded?.id ?? null,
-    };
-  } else {
-    uploadedFiles.document2 = { link: null, id: null };
-  }
-
-  if (files?.["document3"]?.[0]) {
-    const uploaded = await handleFileUpload(files["document3"][0]);
-    uploadedFiles.document3 = {
-      link: uploaded?.link ?? null,
-      id: uploaded?.id ?? null,
-    };
-  } else {
-    uploadedFiles.document3 = { link: null, id: null };
+  for (const field of ["document1", "document2", "document3"]) {
+    if (files?.[field]?.[0]) {
+      const uploaded = await handleFileUpload(files[field][0]);
+      uploadedFiles[field] = {
+        link: uploaded?.link ?? null,
+        id: uploaded?.id ?? null,
+      };
+    } else {
+      uploadedFiles[field] = { link: null, id: null };
+    }
   }
 
   return uploadedFiles;
 };
 
-// --- FUNCIÓN AUXILIAR PARA LIMPIAR VALORES VACÍOS/NULOS DE FORMA RECURSIVA ---
+// --- Limpia valores vacíos o nulos ---
 function cleanEmptyValuesRecursively(obj: any): any {
   if (typeof obj !== "object" || obj === null) {
     if (
@@ -129,12 +103,35 @@ function cleanEmptyValuesRecursively(obj: any): any {
   }
   return cleanedObj;
 }
-// --- FIN FUNCIÓN AUXILIAR ---
 
+// --- Normaliza los datos del paciente ---
 export const normalizePatientData = (rawData: any): any => {
-  let data = { ...rawData };
+  const data = { ...rawData };
+  const result: Record<string, any> = {};
 
-  const jsonbFields = [
+  console.log("🔍 [normalizePatientData] rawData:", rawData);
+
+  for (const key in data) {
+    let value = data[key];
+
+    try {
+      value = JSON.parse(value);
+    } catch {
+      // Mantener como string si no es JSON válido
+    }
+
+    const keys = key.split(".");
+    if (keys.length === 1) {
+      result[keys[0]] = value;
+    } else {
+      if (!result[keys[0]] || typeof result[keys[0]] !== "object") {
+        result[keys[0]] = {};
+      }
+      result[keys[0]][keys[1]] = value;
+    }
+  }
+
+  const jsonFields = [
     "howDidYouHear",
     "cardiovascular",
     "ophthalmological",
@@ -155,30 +152,29 @@ export const normalizePatientData = (rawData: any): any => {
     "surgeryDetails",
   ];
 
-  for (const field of jsonbFields) {
+  for (const field of jsonFields) {
     if (data[field] && typeof data[field] === "string") {
       try {
         data[field] = JSON.parse(data[field]);
       } catch (e) {
         console.error(`Error parsing JSON for field ${field}:`, data[field], e);
-        data[field] = null;
+        data[field] = {};
       }
     }
-
+  
     if (
       data[field] === null ||
       data[field] === "" ||
       data[field] === undefined
     ) {
-      if (jsonbFields.includes(field)) {
-        data[field] = {};
-      }
+      data[field] = {};
     }
   }
 
-  data = cleanEmptyValuesRecursively(data);
+  const cleaned = cleanEmptyValuesRecursively(result);
+  const uppercased = transformStringsToUppercase(cleaned);
 
-  const uppercased = transformStringsToUppercase(data);
+  console.log("🧼 [normalizePatientData] Final data:", uppercased);
 
   return uppercased;
 };

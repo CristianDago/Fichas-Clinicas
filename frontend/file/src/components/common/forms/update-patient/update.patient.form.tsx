@@ -6,7 +6,7 @@ import { FormSection } from "../form-section/form.section";
 // Asegúrate de que PatientData se importe correctamente desde patient.interface.ts
 import { PatientData } from "../../../../interface/patient/patient.interface"; 
 import formCss from "../../../../assets/styles/layout/add.patient.form.module.scss";
-import { useDocumentHandling } from "../../../../hooks/use.document.handling";
+import { useDocumentHandling } from "../../../../hooks/files/use.document.handling";
 
 import {
   YES_NO_OPTIONS,
@@ -16,13 +16,13 @@ import {
   ADVERSE_EFFECT_OPTIONS,
   HOW_DID_YOU_HEAR,
   GENDER_OPTIONS,
-} from "../../../../utils/constants";
+} from "../../../../utils/constants/select.options";
 
 import {
   renderMedicalConditionSection,
   renderSelectWithSpecify,
   renderHabitInput,
-} from "../form-renderers/form-renderers";
+} from "../form-renderers/form.renderers";
 
 interface UpdatePatientFormProps {
   patient: PatientData;

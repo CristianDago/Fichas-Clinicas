@@ -1,4 +1,4 @@
-import { PatientData } from "../interface/patient/patient.interface";
+import { PatientData } from "../../interface/patient/patient.interface";
 
 // Función para agregar un paciente
 export const addPatient = async (

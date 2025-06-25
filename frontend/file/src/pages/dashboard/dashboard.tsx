@@ -1,6 +1,6 @@
-import { Grid } from "../components/common/grid/grid"; // Asumo que esta ruta es correcta
-import { usePatientsList } from "../hooks/use.patients.list";
-import { PatientTable } from "../components/patient.table/patient.table";
+import { Grid } from "../../components/common/grid/grid"; // Asumo que esta ruta es correcta
+import { usePatientsList } from "../../hooks/patients/use.patients.list";
+import { PatientTable } from "../../components/patient.table/patient.table";
 
 export default function Dashboard() {
   const { patients, error, loading } = usePatientsList(); // <-- Usa el hook de pacientes

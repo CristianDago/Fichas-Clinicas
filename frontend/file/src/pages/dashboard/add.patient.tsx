@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { AddPatientForm } from "../components/common/forms/add-patient/add.patient.form";
-import { useAuth } from "../components/auth/auth.context";
-import { useAddPatient } from "../hooks/use.add.patients";
+import { AddPatientForm } from "../../components/common/forms/add-patient/add.patient.form";
+import { useAuth } from "../../components/auth/auth.context";
+import { useAddPatient } from "../../hooks/add-profile/use.add.patients";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import css from "../assets/styles/components/patient.table.module.scss";

@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import {
   DecodedToken,
   UseDecodeTokenResult,
-} from "../interface/hooks/decode.token";
+} from "../../interface/hooks/decode.token";
 
 export const useDecodeToken = (
   initialToken: string | null

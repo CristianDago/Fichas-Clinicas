@@ -76,88 +76,89 @@ export class Profile extends Model {
   @Column(DataType.TEXT)
   declare reasonForConsultation?: string;
 
-  @AllowNull(false)
+  // --- ¿Cómo nos conoció? ---
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare howDidYouHear: SelectOptionWithSpecifyBackend;
+  declare howDidYouHear?: SelectOptionWithSpecifyBackend;
 
   @AllowNull(true)
   @Column(DataType.STRING)
   declare gender: string;
 
   // --- Antecedentes Médicos ---
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare cardiovascular: MedicalConditionDetailsBackend;
+  declare cardiovascular?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare ophthalmological: MedicalConditionDetailsBackend;
+  declare ophthalmological?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare psychologicalPsychiatric: MedicalConditionDetailsBackend;
+  declare psychologicalPsychiatric?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare diabetes: MedicalConditionDetailsBackend;
+  declare diabetes?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare hypertension: MedicalConditionDetailsBackend;
+  declare hypertension?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare allergies: SelectOptionWithSpecifyBackend;
+  declare allergies?: SelectOptionWithSpecifyBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare autoimmuneDiseases: MedicalConditionDetailsBackend;
+  declare autoimmuneDiseases?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare hematologicalDiseases: MedicalConditionDetailsBackend;
+  declare hematologicalDiseases?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare respiratoryDiseases: MedicalConditionDetailsBackend;
+  declare respiratoryDiseases?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare sleepApnea: MedicalConditionDetailsBackend;
+  declare sleepApnea?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare eatingDisorder: MedicalConditionDetailsBackend;
+  declare eatingDisorder?: MedicalConditionDetailsBackend;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare currentMedicationUse: { present: string; specify?: string };
+  declare currentMedicationUse?: { present: string; specify?: string };
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare otherDiseasesNotMentioned: MedicalConditionDetailsBackend;
+  declare otherDiseasesNotMentioned?: MedicalConditionDetailsBackend;
 
   // --- Hábitos ---
   @AllowNull(true)
   @Column(DataType.STRING)
   declare physicalActivity: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare smoking: { isSmoker: string; cigarettesPerDay?: number };
+  declare smoking?: { isSmoker: string; cigarettesPerDay?: number };
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare drugs: { usesDrugs: string; type?: string };
+  declare drugs?: { usesDrugs: string; type?: string };
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare alcohol: { consumesAlcohol: string; quantity?: string };
+  declare alcohol?: { consumesAlcohol: string; quantity?: string };
 
   // --- Antecedentes Quirúrgicos ---
-  @AllowNull(false)
+  @AllowNull(true)
   @Column(DataType.JSON)
-  declare surgeryDetails: {
+  declare surgeryDetails?: {
     type: SelectOptionWithSpecifyBackend;
     anesthesiaType: SelectOptionWithSpecifyBackend;
     adverseEffect: SelectOptionWithSpecifyBackend;
@@ -209,9 +210,7 @@ export class Profile extends Model {
       date: Date | undefined
     ): Date | undefined => {
       if (!date) return date;
-      return DateTime.fromJSDate(date)
-        .setZone("America/Santiago")
-        .toJSDate();
+      return DateTime.fromJSDate(date).setZone("America/Santiago").toJSDate();
     };
 
     if (instance.createdAt !== undefined) {

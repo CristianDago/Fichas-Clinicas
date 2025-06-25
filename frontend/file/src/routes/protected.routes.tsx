@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../components/auth/auth.context";
 import { LoadingSpinner } from "../components/ui/loading.spinner";
-import { useProtectedRoute } from "../hooks/use.protected.route";
+import { useProtectedRoute } from "../hooks/auth/use.protected.route";
 
 export const ProtectedRoute = () => {
   const isLoadingAuth = useProtectedRoute();

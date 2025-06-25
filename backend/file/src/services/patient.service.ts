@@ -3,44 +3,75 @@
 import { Profile } from "../models/profile.model";
 import { HttpError } from "../utils/http.error.util";
 import { googleDriveService } from "./google.drive.service";
-import { validateField } from "../utils/validation.utils"; // <-- Nueva importación de la utilidad
+import { validateField } from "../utils/validation.utils";
 import {
   PatientCreationAttributes,
   PatientUpdateAttributes,
 } from "../interfaces/patient.backend.interface";
 
+// 🔍 Función para validar que un campo JSON tenga claves requeridas
+function validateJsonField(
+  field: any,
+  requiredKeys: string[],
+  fieldName: string
+) {
+  if (!field || typeof field !== "object") {
+    throw new HttpError(`${fieldName} debe ser un objeto JSON`, 400);
+  }
+
+  for (const key of requiredKeys) {
+    if (!(key in field)) {
+      throw new HttpError(`${fieldName} debe contener la clave "${key}"`, 400);
+    }
+  }
+}
+
 class PatientService {
-  // --- 1. Método para crear un paciente ---
-  // Ahora retorna una instancia completa de Profile.
+  // --- Crear paciente ---
   async createPatient(
     patientData: PatientCreationAttributes
   ): Promise<Profile> {
     const { name, lastname } = patientData;
 
-    validateField(name, "El nombre"); // Uso de la utilidad
-    validateField(lastname, "El apellido"); // Uso de la utilidad
+    // ✅ Validaciones de campos obligatorios
+    validateField(name, "El nombre");
+    validateField(lastname, "El apellido");
 
+    // ✅ Validar campos JSON si es necesario (puedes comentar los que no necesites)
+    if (patientData.cardiovascular)
+      validateJsonField(patientData.cardiovascular, ["present"], "Cardiovascular");
+
+    if (patientData.diabetes)
+      validateJsonField(patientData.diabetes, ["present"], "Diabetes");
+
+    if (patientData.hypertension)
+      validateJsonField(patientData.hypertension, ["present"], "Hipertensión");
+
+    if (patientData.surgeryDetails)
+      validateJsonField(patientData.surgeryDetails, ["type", "anesthesiaType", "adverseEffect"], "Detalles quirúrgicos");
+
+    // ✅ Crear paciente
     const newPatient = await Profile.create(patientData);
-    return newPatient; // Retorna la instancia de Sequelize directamente
+
+    // 🧾 Verificar que los campos JSON se guardan bien
+    console.log("✅ Paciente creado:", newPatient.toJSON());
+
+    return newPatient;
   }
 
-  // --- 2. Método para obtener un paciente por ID ---
-  // Retorna una instancia de Profile o null. Esto ya estaba correcto.
+  // --- Obtener paciente por ID ---
   async getPatientById(id: string): Promise<Profile | null> {
-    const patient = await Profile.findByPk(id);
-    // No lanzamos HttpError aquí, el controlador lo manejará si retorna null.
-    return patient;
+    return await Profile.findByPk(id);
   }
 
-  // --- 3. Método para eliminar un paciente ---
-  // Retorna una instancia de Profile. Esto ya estaba correcto.
+  // --- Eliminar paciente ---
   async deletePatientById(id: string): Promise<Profile> {
     const patient = await Profile.findByPk(id);
     if (!patient) {
       throw new HttpError("No se encontró el paciente para eliminar", 404);
     }
 
-    // Lógica para eliminar archivos de Drive
+    // 🗑️ Borrar archivos de Drive si existen
     if (patient.document1DriveId) {
       await googleDriveService.deleteFile(patient.document1DriveId);
     }
@@ -52,11 +83,10 @@ class PatientService {
     }
 
     await patient.destroy();
-    return patient; // Retorna la instancia eliminada
+    return patient;
   }
 
-  // --- 4. Método para actualizar un paciente ---
-  // Ahora retorna una instancia completa de Profile.
+  // --- Actualizar paciente ---
   async updatePatientById(
     id: string,
     patientData: PatientUpdateAttributes
@@ -66,6 +96,20 @@ class PatientService {
       throw new HttpError("No se pudo actualizar el paciente: ID inválido", 400);
     }
 
+    // ✅ Validar campos JSON si es necesario
+    if (patientData.cardiovascular)
+      validateJsonField(patientData.cardiovascular, ["present"], "Cardiovascular");
+
+    if (patientData.diabetes)
+      validateJsonField(patientData.diabetes, ["present"], "Diabetes");
+
+    if (patientData.hypertension)
+      validateJsonField(patientData.hypertension, ["present"], "Hipertensión");
+
+    if (patientData.surgeryDetails)
+      validateJsonField(patientData.surgeryDetails, ["type", "anesthesiaType", "adverseEffect"], "Detalles quirúrgicos");
+
+    // ✅ Manejo de eliminación de archivos Drive si vienen como null
     const fileFields = [
       { field: "document1", driveIdField: "document1DriveId" },
       { field: "document2", driveIdField: "document2DriveId" },
@@ -84,15 +128,15 @@ class PatientService {
     }
 
     const updatedInstance = await patientToUpdate.update(patientData);
-    return updatedInstance; // Retorna la instancia de Sequelize actualizada
+
+    console.log("🔄 Paciente actualizado:", updatedInstance.toJSON());
+
+    return updatedInstance;
   }
 
-  // --- 5. Método para obtener todos los pacientes ---
-  // Retorna un array de instancias de Profile. Esto ya estaba correcto.
+  // --- Obtener todos los pacientes ---
   async getAllPatients(): Promise<Profile[]> {
-    const patients = await Profile.findAll();
-    // No lanzamos HttpError si la lista está vacía, el controlador decidirá qué hacer.
-    return patients; // Retorna el array de instancias de Sequelize
+    return await Profile.findAll();
   }
 }
 

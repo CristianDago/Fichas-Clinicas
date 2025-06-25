@@ -3,7 +3,7 @@ import { useAuth } from "../../components/auth/auth.context";
 import { useNavigate } from "react-router-dom";
 import { Grid } from "../../components/common/grid/grid";
 import { LoginForm } from "./login.form";
-import { authenticateUser } from "../../utils/auth.utils";
+import { authenticateUser } from "../../utils/api/auth.utils";
 import css from "../../assets/styles/layout/login.form.module.scss";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastMessage } from "../../components/common/toast-message/toast.message";
